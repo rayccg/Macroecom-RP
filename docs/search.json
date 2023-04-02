@@ -2,9 +2,9 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Title of your work",
+    "title": "Effects of fiscal policy on unemployment and output in Australia: a Bayesian Structural Vector Autoregression approach",
     "section": "",
-    "text": "Abstract. This is a suggested formatting for your abstract. This quarto document is a template for your report. It includes some basic ways of working with such documents. You are invited to learn more about developing online reports with this technology.\nKeywords. bsvars, impulse responses, quarto, R, tax shocks"
+    "text": "Abstract. This study attempts to estimate the effect of different fiscal policy instruments on unemployment and output in Australia, using a Bayesian Structural Vector Autoregression approach. Impulse response functions and forecast variance error decomposition methods are used to analyze these effects.\nKeywords. bsvars, fiscal policy, unemployment, GDP, impulse response, forecast variance error decomposition, Australia"
   },
   {
     "objectID": "index.html#a-simple-example",
@@ -58,6 +58,41 @@
   {
     "objectID": "Macro_RP1 RG.html#references",
     "href": "Macro_RP1 RG.html#references",
+    "title": "Effects of fiscal policy on unemployment and output in Australia: a Bayesian Structural Vector Autoregression approach",
+    "section": "References",
+    "text": "References\nAbubakar, Attahir B. (2016): Dynamic effects of fiscal policy on output and unemployment in Nigeria: An econometric investigation, CBN Journal of Applied Statistics, ISSN 2476-8472, The Central Bank of Nigeria, Abuja, Vol. 07, Iss. 2, pp. 101-122\nDoppelt, Ross (2021): Should Macroeconomists Use Seasonally Adjuted Time Series? Structural Identification and Bayesian Estimation in Seasonal Vector Autoregressions, Manuscript, Michigan State University"
+  },
+  {
+    "objectID": "index.html#introduction",
+    "href": "index.html#introduction",
+    "title": "Effects of fiscal policy on unemployment and output in Australia: a Bayesian Structural Vector Autoregression approach",
+    "section": "Introduction",
+    "text": "Introduction\nIn many countries, fiscal policy is viewed as a direct means of achieving inclusive development objectives, frequently articulated as twin goals of sustained growth and low poverty (often achieved through low unemployment). However, fiscal policy shocks often occur in multifaceted ways, with simultaneous changes in both revenue and expenditure-side elements of the fiscal balance, making it difficult to disentangle the effects of any one particular policy.\nThis study attempts to identify the effect of the following fiscal policy instruments: tax policy, public investment expenditures, and social transfers, on both unemployment and output in the Australian context, using Bayesian Structural Vector Autoregression (BSVAR) approach.\nThe analysis is guided by the work of Abubakar, Attahir B. (2016), which used a SVAR approach to estimate the effect of public expenditures and public revenues on Nigerian output and unemployment. This study extends this work by using a more extensive dataset, involving more disaggregated revenue and expenditure variables, the inclusion of monetary policy control variables, as well as through the use of Bayesian estimation."
+  },
+  {
+    "objectID": "index.html#data-sources",
+    "href": "index.html#data-sources",
+    "title": "Effects of fiscal policy on unemployment and output in Australia: a Bayesian Structural Vector Autoregression approach",
+    "section": "Data sources",
+    "text": "Data sources\nQuarterly data from Q1 1990 to Q4 2022 was sourced from the Australian Bureau of Statistics and the Reserve Bank of Australia and extracted using the readabs and readrba packages in R.\nOutcome variables:\n\nUnemployment rate and nominal GDP\n\nExplanatory variables of interest\n\nRevenue: Tax and non-tax (gross income less tax) revenue\nSpending: Public gross fixed capital formation and social assistance payments, government final consumption\n\nControl variables:\n\nMonetary policy: cash rate target and M3 money supply\n\n\n\n\n\n  \n\n\n\n\n\n  \n\n\n\nAs seen in the figures below, Australian GDP output has been on a relatively steady, upward trend since 1990, along with fiscal revenue and spending. These have been largely accommodated by lowering of interest rates and an expanding money supply. Overall, these have been associated with a downward, albeit volatile trajectory in the unemployment rate. Following the advice of Doppelt (2021), the data is left in original, seasonally-unadjusted form but will be transformed into natural log terms during the analysis.\n\nTime series plots: 1990 Q1 to 2022 Q4, original values"
+  },
+  {
+    "objectID": "index.html#preliminary-data-analysis",
+    "href": "index.html#preliminary-data-analysis",
+    "title": "Effects of fiscal policy on unemployment and output in Australia: a Bayesian Structural Vector Autoregression approach",
+    "section": "Preliminary data analysis",
+    "text": "Preliminary data analysis\n\nACF and PACF analysis\nACF plots show strong, positive, and gradually decaying autocorrelation structures across all variables. Moreover the PACF plots indicate a near-one value at the first lag and much lower, mostly statistically zero values at higher lag orders. These characteristics may be indicating that the variables are following a random walk with drift process and as such may be unit-root non-stationary.\n\nAutocorrelation function (ACF) plots\n\n\n\n\n\n\n\n\n\n\nPartial autocorrelation function (PACF) plots\n\n\n\n\n\n\n\n\n\n\n\nAugmented Dickey-Fuller test for unit roots\n\n\n\n\nADF test results: levels, first, and second difference"
+  },
+  {
+    "objectID": "index.html#model-specification",
+    "href": "index.html#model-specification",
+    "title": "Effects of fiscal policy on unemployment and output in Australia: a Bayesian Structural Vector Autoregression approach",
+    "section": "Model specification",
+    "text": "Model specification\n\nStructural form (SF) model\nThe following SVAR model is specified to represent the system through which the included variables are jointly determined:\n\\[\n\\begin{align}\nB_0y_t &= b_0 + B_1 y_{t-1} + \\dots + b_p y_{t-p} + u_t\\\\\nu_{t}| Y_{t-1} &\\sim _{iid} ( 0, I_N)\n\\end{align}\n\\] Where \\(y_t\\) is a vector of endogenous variables:\n\\[y_t=\\begin{pmatrix} unemp_t &= \\text{unemployment rate}\n\\\\ nomgdp_t &= \\text{nominal GDP}\n\\\\ totaltax_t  &= \\text{tax revenue}\n\\\\ nontax_t  &= \\text{non-tax revenue}\n\\\\ pubinv_t  &= \\text{government gross fixed capital formation}\n\\\\ pubtrans_t  &= \\text{social assitance and benefits payments}\n\\\\ pubcons_t  &= \\text{government final consumption}\n\\\\ cashrate_t  &= \\text{cash rate target}\n\\\\ M3_t  &= \\text{M3 money supply}\n\\end{pmatrix}\\]\nand the structural matrix \\(B_0\\) summarizes the contemporaneous relationships between these variables.\n\n\nReduced form (RF) model\n\\[\n\\begin{align}\ny_t &= \\mu_0 + A_1 y_{t-1} + \\dots + A_p y_{t-p} + \\varepsilon_t\\\\\n\\text{where }B_0^{-1}u_t &= \\varepsilon_t| Y_{t-1} \\sim _{iid} ( 0, \\Sigma)\\\\\n\\Sigma &= B_0^{-1}B_0^{-1'}\n\\end{align}\n\\]\nThe study will utilize impulse response functions and forecast error variance decomposition methods to measure the effects of the four fiscal levers in the model on the unemployment rate and GDP output."
+  },
+  {
+    "objectID": "index.html#references",
+    "href": "index.html#references",
     "title": "Effects of fiscal policy on unemployment and output in Australia: a Bayesian Structural Vector Autoregression approach",
     "section": "References",
     "text": "References\nAbubakar, Attahir B. (2016): Dynamic effects of fiscal policy on output and unemployment in Nigeria: An econometric investigation, CBN Journal of Applied Statistics, ISSN 2476-8472, The Central Bank of Nigeria, Abuja, Vol. 07, Iss. 2, pp. 101-122\nDoppelt, Ross (2021): Should Macroeconomists Use Seasonally Adjuted Time Series? Structural Identification and Bayesian Estimation in Seasonal Vector Autoregressions, Manuscript, Michigan State University"
