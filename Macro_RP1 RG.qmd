@@ -151,21 +151,12 @@ for (i in 1:9){
   Acf(lnY.df[,i], main = "", ylim = c(-0.2,1))
   title(main = paste(varname_vec[i]), line = 0.5)
 } 
-for (i in 1:9){
-  pacf(lnY.df[,i], main = "", ylim = c(-0.2,1))
-  title(main = paste(varname_vec[i]), line = 0.5)
-} 
-
 ```
 
 #### Partial autocorrelation function (PACF) plots {style="text-align: center;"}
 
 ```{r PACF plotsPACF analysis, echo = FALSE}
 par(mfrow=c(3,3), mar=c(2,2,2,2))
-for (i in 1:9){
-  Acf(lnY.df[,i], main = "", ylim = c(-0.2,1))
-  title(main = paste(varname_vec[i]), line = 0.5)
-} 
 for (i in 1:9){
   pacf(lnY.df[,i], main = "", ylim = c(-0.2,1))
   title(main = paste(varname_vec[i]), line = 0.5)
@@ -237,7 +228,7 @@ npadf_lev <- ngperronADF(lnY.df[,i])
 #npadf_fd <- ngperronADF(diff(lnY.df[,i])[-1]p)  
 }
 ```
-
+Augmented Dickey-Fuller tests following the maximum lag-setting procedure of Ng and Perron (1998) were performed on all nine variables. The null hypothesis that a unit roots exists was rejected for ADF tests on levels of tax revenue, non-tax revenue, social benefits payments, government consumption, and M3 supply, indicating that these variables do not have a unit-root. Meanwhile, the first differences of the unemployment rate, government GFCF, and M3 supply variables yielded a significant ADF test result, indicating that these have order of integration of 1. Lastly, it took another differening for nominal GDP to yield a significant result, indicating an order of integration of 2. 
 ## Model specification
 
 ### Structural form (SF) model
