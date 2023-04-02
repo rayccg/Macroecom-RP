@@ -81,7 +81,7 @@
     "href": "index.html#preliminary-data-analysis",
     "title": "Effects of fiscal policy on unemployment and output in Australia: a Bayesian Structural Vector Autoregression approach",
     "section": "Preliminary data analysis",
-    "text": "Preliminary data analysis\n\nACF and PACF analysis\nACF plots show strong, positive, and gradually decaying autocorrelation structures across all variables. Moreover the PACF plots indicate a near-one value at the first lag and much lower, mostly statistically zero values at higher lag orders. These characteristics may be indicating that the variables are following a random walk with drift process and as such may be unit-root non-stationary.\n\nAutocorrelation function (ACF) plots\n\n\n\n\n\n\n\n\n\n\nPartial autocorrelation function (PACF) plots\n\n\n\n\n\n\n\n\n\n\n\nAugmented Dickey-Fuller test for unit roots\n\n\n\n\nADF test results: levels, first, and second difference"
+    "text": "Preliminary data analysis\n\nACF and PACF analysis\nACF plots show strong, positive, and gradually decaying autocorrelation structures across all variables. Moreover the PACF plots indicate a near-one value at the first lag and much lower, mostly statistically zero values at higher lag orders. These characteristics may be indicating that the variables are following a random walk with drift process and as such may be unit-root non-stationary.\n\nAutocorrelation function (ACF) plots\n\n\n\n\n\n\n\nPartial autocorrelation function (PACF) plots\n\n\n\n\n\n\n\n\nAugmented Dickey-Fuller test for unit roots\n\n\n\n\nADF test results: levels, first, and second difference"
   },
   {
     "objectID": "index.html#model-specification",
