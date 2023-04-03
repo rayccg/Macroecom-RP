@@ -175,7 +175,7 @@ ngperronADF <- function(y){
   T <- length(y)
   kmax <- ceiling(12*(((T-25)/100)^(1/4)))
   k <- kmax + 1
-  # run test regression until t-value of lasgt lag > 1.6
+  # run test regression until t-statistic of kth lag > 1.6
   t <- 0
   while(abs(t) < 1.6){
       k <- k - 1
