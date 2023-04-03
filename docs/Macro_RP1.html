@@ -204,7 +204,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </header>
 
 <blockquote class="blockquote">
-<p><strong>Abstract.</strong> This study attempts to estimate the effect of different fiscal policy instruments on unemployment and output in Australia, using a Bayesian Structural Vector Autoregression approach. Impulse response functions and forecast variance error decomposition methods are used to analyze these effects.</p>
+<p><strong>Abstract.</strong> This proposed study attempts to estimate the effect of different fiscal policy instruments on unemployment and output in Australia, using a Bayesian Structural Vector Autoregression approach. Impulse response functions and forecast variance error decomposition methods are used to analyze these effects.</p>
 <p><strong>Keywords.</strong> Fiscal policy, unemployment, GDP, Australia impulse response, forecast variance error decomposition, bsvars, R</p>
 </blockquote>
 <section id="introduction" class="level2">
@@ -253,7 +253,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="section" class="level1">
 <h1></h1>
-<p>As seen in the figures below, Australian GDP output has been on a relatively steady, upward trend since 1990, along with fiscal revenue and spending. These have been largely accommodated by lowering of interest rates and an expanding money supply. Overall, these have been associated with a downward, albeit volatile trajectory in the unemployment rate. Following the advice of Doppelt (2021), the data is left in original, seasonally-unadjusted form but will be transformed into natural log terms during the analysis.</p>
+<p>As seen in the figures below, Australian GDP output has been on a relatively steady, upward trend since 1990, along with fiscal revenue and spending. These have been largely accommodated by lowering of interest rates and an expanding money supply. Overall, these have been associated with a downward, albeit volatile trajectory in the unemployment rate. Currently, the data is left in original, seasonally-unadjusted form as the variable for social benefit payments does not have a seasonally-adjusted version in the ABS website. However, the final version of the data to be used will be determined after further data exploration. Lastly, the data will be transformed into natural log terms during the analysis.</p>
 <section id="figure-1.-time-series-plots-1990-q1-to-2022-q4-original-values" class="level5" style="text-align: center;">
 <h5 style="text-align: center;" class="anchored" data-anchor-id="figure-1.-time-series-plots-1990-q1-to-2022-q4-original-values">Figure 1. Time series plots: 1990 Q1 to 2022 Q4, original values</h5>
 <div class="cell">
@@ -287,7 +287,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="augmented-dickey-fuller-test-for-unit-roots" class="level3">
 <h3 class="anchored" data-anchor-id="augmented-dickey-fuller-test-for-unit-roots">Augmented Dickey-Fuller test for unit roots</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#function to implement the Ng and Perron (1998) ADF test procedure</span></span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to implement the Ng and Perron (1998) ADF test procedure</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ngperronADF <span class="ot">&lt;-</span> <span class="cf">function</span>(y){</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  T <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  kmax <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(<span class="dv">12</span><span class="sc">*</span>(((T<span class="dv">-25</span>)<span class="sc">/</span><span class="dv">100</span>)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>)))</span>
