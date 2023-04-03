@@ -102,7 +102,7 @@ pubcons <- to.quarterly(xts(pubcons.dl$value, pubcons.dl$date),
 
 ```
 
-##### Table 1. Data from ABS and RBA
+##### Table 1. Data from ABS and RBA {style="text-align: center;"}
 
 ```{r data merge and log transform, echo = F}
 # Merge data into one matrix
@@ -123,7 +123,7 @@ paged_table(as.data.frame(round(head(lnY.df,4),2)))
 paged_table(as.data.frame(round(tail(lnY.df,4),2)))
 
 ```
-
+#
 As seen in the figures below, Australian GDP output has been on a relatively steady, upward trend since 1990, along with fiscal revenue and spending. These have been largely accommodated by lowering of interest rates and an expanding money supply. Overall, these have been associated with a downward, albeit volatile trajectory in the unemployment rate. Following the advice of Doppelt (2021), the data is left in original, seasonally-unadjusted form but will be transformed into natural log terms during the analysis.
 
 ##### Figure 1. Time series plots: 1990 Q1 to 2022 Q4, original values {style="text-align: center;"}
@@ -169,7 +169,7 @@ for (i in 1:9){
 
 ### Augmented Dickey-Fuller test for unit roots
 
-```{r Ng-Perron ADF test function, message = FALSE}
+```{r Ng-Perron ADF test function, echo = TRUE}
 #function to implement the Ng and Perron (1998) ADF test procedure
 ngperronADF <- function(y){
   T <- length(y)
