@@ -8,7 +8,7 @@
 
 <meta name="author" content="Ray Gomez">
 
-<title>Macroeconometrics Research Report - Effects of fiscal policy on unemployment and output in Australia: a Bayesian Structural Vector Autoregression approach</title>
+<title>Macroeconometrics Research Report - Effects of fiscal policy on unemployment and output in Australia: a Bayesian SVAR approach</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -182,7 +182,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Effects of fiscal policy on unemployment and output in Australia: a Bayesian Structural Vector Autoregression approach</h1>
+<h1 class="title">Effects of fiscal policy on unemployment and output in Australia: a Bayesian SVAR approach</h1>
 </div>
 
 
@@ -204,29 +204,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </header>
 
 <blockquote class="blockquote">
-<p><strong>Abstract.</strong> This proposed study attempts to estimate the effect of different fiscal policy instruments on unemployment and output in Australia, using a Bayesian Structural Vector Autoregression approach. Impulse response functions and forecast variance error decomposition methods are used to analyze these effects.</p>
+<p><strong>Abstract.</strong> This proposed study attempts to estimate the effects of various fiscal policy instruments on unemployment and output in Australia, using a Bayesian Structural Vector Autoregression approach. Impulse response functions and forecast variance error decomposition methods are expected to be used for measuring these effects.</p>
 <p><strong>Keywords.</strong> Fiscal policy, unemployment, GDP, Australia impulse response, forecast variance error decomposition, bsvars, R</p>
 </blockquote>
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>In many countries, fiscal policy is viewed as a direct means of achieving inclusive development objectives, frequently articulated as twin goals of sustained growth and low poverty (often achieved through low unemployment). However, fiscal policy shocks often occur in multifaceted ways, with simultaneous changes in both revenue and expenditure-side elements of the fiscal balance, making it difficult to disentangle the effects of any one particular policy.</p>
+<p>In many countries, fiscal policy is viewed as a direct means of achieving inclusive development objectives, frequently articulated as twin goals of sustained growth and low poverty (often achieved through low unemployment). However, fiscal policy shocks often occur in multifaceted ways, with simultaneous changes in both revenue and expenditure-side elements of the fiscal balance, making it difficult to disentangle the effects of any one particular policy shock.</p>
 <p>This study attempts to identify the effect of the following fiscal policy instruments: tax policy, public investment expenditures, and social transfers, on both unemployment and output in the Australian context, using Bayesian Structural Vector Autoregression (BSVAR) approach.</p>
 <p>The analysis is guided by the work of Abubakar, Attahir B. (2016), which used a SVAR approach to estimate the effect of public expenditures and public revenues on Nigerian output and unemployment. This study extends this work by using a more extensive dataset, involving more disaggregated revenue and expenditure variables, the inclusion of monetary policy control variables, as well as through the use of Bayesian estimation.</p>
 </section>
 <section id="data-sources" class="level2">
 <h2 class="anchored" data-anchor-id="data-sources">Data sources</h2>
-<p>Quarterly data from Q1 1990 to Q4 2022 was sourced from the Australian Bureau of Statistics and the Reserve Bank of Australia and extracted using the <code>readabs</code> and <code>readrba</code> packages in <code>R</code>.</p>
+<p>Quarterly data from Q1 1990 to Q4 2022 was sourced from the Australian Bureau of Statistics (ABS) and the Reserve Bank of Australia (RBA) and extracted using the <code>readabs</code> and <code>readrba</code> packages in <code>R</code>.</p>
 <p>Outcome variables:</p>
 <ul>
 <li>Unemployment rate and nominal GDP</li>
 </ul>
 <p>Explanatory variables of interest</p>
 <ul>
-<li><p>Revenue: Tax and non-tax (gross income less tax) revenue</p></li>
-<li><p>Spending: Public gross fixed capital formation and social assistance payments, government final consumption</p></li>
+<li><p>Revenue: Tax revenue</p></li>
+<li><p>Spending: Public gross fixed capital formation and social assistance payments</p></li>
 </ul>
 <p>Control variables:</p>
 <ul>
+<li>Other fiscal policies: non-tax (gross income less tax) revenue, government final consumption</li>
 <li>Monetary policy: cash rate target and M3 money supply</li>
 </ul>
 <section id="table-1.-data-from-abs-and-rba" class="level5" style="text-align: center;">
@@ -253,7 +254,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="section" class="level1">
 <h1></h1>
-<p>As seen in the figures below, Australian GDP output has been on a relatively steady, upward trend since 1990, along with fiscal revenue and spending. These have been largely accommodated by lowering of interest rates and an expanding money supply. Overall, these have been associated with a downward, albeit volatile trajectory in the unemployment rate. Currently, the data is left in original, seasonally-unadjusted form as the variable for social benefit payments does not have a seasonally-adjusted version in the ABS website. However, the final version of the data to be used will be determined after further data exploration. Lastly, the data will be transformed into natural log terms during the analysis.</p>
+<p>As seen in the figures below, Australian GDP output has been on a relatively steady, upward trend since 1990, along with fiscal revenue and spending. These have, by and large, been accommodated by the lowering of interest rates and an expanding money supply. Overall, these have been associated with a downward, albeit volatile trajectory in the unemployment rate. Currently, the data is left in original, seasonally-unadjusted form as the variable for social benefit payments does not have a seasonally-adjusted version in the ABS website. However, the final version of the data to be used will be determined after further exploration. Lastly, the data will be transformed into natural log terms during the analysis as to interpret the coefficients in the structural matrix as elasticities.</p>
 <section id="figure-1.-time-series-plots-1990-q1-to-2022-q4-original-values" class="level5" style="text-align: center;">
 <h5 style="text-align: center;" class="anchored" data-anchor-id="figure-1.-time-series-plots-1990-q1-to-2022-q4-original-values">Figure 1. Time series plots: 1990 Q1 to 2022 Q4, original values</h5>
 <div class="cell">
@@ -266,7 +267,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 class="anchored" data-anchor-id="preliminary-data-analysis">Preliminary data analysis</h2>
 <section id="acf-and-pacf-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="acf-and-pacf-analysis">ACF and PACF analysis</h3>
-<p>ACF plots show strong, positive, and gradually decaying autocorrelation structures across all variables. Moreover the PACF plots indicate a near-one value at the first lag and much lower, mostly statistically zero values at higher lag orders. These characteristics may be indicating that the variables are following a random walk with drift process and as such may be unit-root non-stationary.</p>
+<p>Across variables, ACF plots show strong, positive, and gradually decaying autocorrelation structures. Moreover the PACF plots indicate a near-one value at the first lag and much lower, mostly statistically zero values at higher lag orders. These characteristics may be indicating that many variables may be following a random walk with drift process and as such may be unit-root non-stationary.</p>
 <section id="figure-2.1.-autocorrelation-function-acf-plots" class="level6" style="text-align: center;">
 <h6 style="text-align: center;" class="anchored" data-anchor-id="figure-2.1.-autocorrelation-function-acf-plots">Figure 2.1. Autocorrelation function (ACF) plots</h6>
 <div class="cell">
@@ -324,12 +325,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="section-1" class="level1">
 <h1></h1>
-<p>Augmented Dickey-Fuller tests following the maximum lag-setting procedure of Ng and Perron (1998) were performed on all nine variables. The null hypothesis that a unit roots exists was rejected for ADF tests on levels of tax revenue, non-tax revenue, social benefits payments, government consumption, and M3 supply, indicating that these variables do not have a unit-root. Meanwhile, the first differences of the unemployment rate, government GFCF, and M3 supply variables yielded a significant ADF test result, indicating that these have order of integration of 1. Lastly, it took another differencing for nominal GDP to yield a significant result, indicating an order of integration of 2.</p>
+<p>Augmented Dickey-Fuller tests following the maximum lag-setting procedure of Ng and Perron (1998) were performed on all nine variables. The null hypothesis that a unit roots exists was rejected for ADF tests on levels of tax revenue, non-tax revenue, social benefits payments, government consumption, and M3 supply, indicating that these variables do not have a unit-root. Meanwhile, the first differences of the unemployment rate, government GFCF, and M3 supply variables yielded a significant ADF test result, indicating that these have order of integration of 1. Lastly, it took another differencing for nominal GDP to yield a significant result, indicating an order of integration of 2. Further analysis of these variables, including a more calibrated ADF test and cointegration tests will be performed in the future.</p>
 <section id="model-specification" class="level2">
 <h2 class="anchored" data-anchor-id="model-specification">Model specification</h2>
 <section id="structural-form-sf-model" class="level3">
 <h3 class="anchored" data-anchor-id="structural-form-sf-model">Structural form (SF) model</h3>
-<p>The following SVAR model is specified to represent the system through which the included variables are jointly determined:</p>
+<p>The following SVAR model specification is proposed is to represent the system through which the included variables are jointly determined:</p>
 <p><span class="math display">\[
 \begin{align}
 B_0y_t &amp;= b_0 + B_1 y_{t-1} + \dots + b_p y_{t-p} + u_t\\
@@ -357,13 +358,12 @@ y_t &amp;= \mu_0 + A_1 y_{t-1} + \dots + A_p y_{t-p} + \varepsilon_t\\
 \Sigma &amp;= B_0^{-1}B_0^{-1'}
 \end{align}
 \]</span></p>
-<p>The study will utilize impulse response functions and forecast error variance decomposition methods to measure the effects of the four fiscal levers in the model on the unemployment rate and GDP output.</p>
+<p>The study will utilize impulse response functions and forecast error variance decomposition methods to measure the effects of the tax policy, public investment, and government social transfers on the unemployment rate and GDP output.</p>
 </section>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
 <p>Abubakar, Attahir B. (2016): Dynamic effects of fiscal policy on output and unemployment in Nigeria: An econometric investigation, CBN Journal of Applied Statistics, ISSN 2476-8472, The Central Bank of Nigeria, Abuja, Vol. 07, Iss. 2, pp.&nbsp;101-122</p>
-<p>Doppelt, Ross (2021): Should Macroeconomists Use Seasonally Adjuted Time Series? Structural Identification and Bayesian Estimation in Seasonal Vector Autoregressions, Manuscript, Michigan State University</p>
 
 
 </section>
