@@ -8,7 +8,7 @@
 
 <meta name="author" content="Ray Gomez">
 
-<title>Macroeconometrics Research Report - Effects of fiscal policy on unemployment and output in Australia: a Bayesian Structural Vector Autoregression approach</title>
+<title>Macroeconometrics Research Report - Effects of fiscal policy on unemployment and output in Australia: a Bayesian SVAR approach</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,6 +21,69 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1.6em;
   vertical-align: middle;
 }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
@@ -94,17 +157,23 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#data-sources" id="toc-data-sources" class="nav-link" data-scroll-target="#data-sources">Data sources</a></li>
+  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section"></a>
+  <ul class="collapse">
   <li><a href="#preliminary-data-analysis" id="toc-preliminary-data-analysis" class="nav-link" data-scroll-target="#preliminary-data-analysis">Preliminary data analysis</a>
   <ul class="collapse">
   <li><a href="#acf-and-pacf-analysis" id="toc-acf-and-pacf-analysis" class="nav-link" data-scroll-target="#acf-and-pacf-analysis">ACF and PACF analysis</a></li>
   <li><a href="#augmented-dickey-fuller-test-for-unit-roots" id="toc-augmented-dickey-fuller-test-for-unit-roots" class="nav-link" data-scroll-target="#augmented-dickey-fuller-test-for-unit-roots">Augmented Dickey-Fuller test for unit roots</a></li>
   </ul></li>
+  </ul></li>
+  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1"></a>
+  <ul class="collapse">
   <li><a href="#model-specification" id="toc-model-specification" class="nav-link" data-scroll-target="#model-specification">Model specification</a>
   <ul class="collapse">
   <li><a href="#structural-form-sf-model" id="toc-structural-form-sf-model" class="nav-link" data-scroll-target="#structural-form-sf-model">Structural form (SF) model</a></li>
   <li><a href="#reduced-form-rf-model" id="toc-reduced-form-rf-model" class="nav-link" data-scroll-target="#reduced-form-rf-model">Reduced form (RF) model</a></li>
   </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -113,7 +182,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Effects of fiscal policy on unemployment and output in Australia: a Bayesian Structural Vector Autoregression approach</h1>
+<h1 class="title">Effects of fiscal policy on unemployment and output in Australia: a Bayesian SVAR approach</h1>
 </div>
 
 
@@ -135,31 +204,35 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 <blockquote class="blockquote">
-<p><strong>Abstract.</strong> This study attempts to estimate the effect of different fiscal policy instruments on unemployment and output in Australia, using a Bayesian Structural Vector Autoregression approach. Impulse response functions and forecast variance error decomposition methods are used to analyze these effects.</p>
-<p><strong>Keywords.</strong> bsvars, fiscal policy, unemployment, GDP, impulse response, forecast variance error decomposition, Australia</p>
+<p><strong>Abstract.</strong> This proposed study attempts to estimate the effects of various fiscal policy instruments on unemployment and output in Australia, using a Bayesian Structural Vector Autoregression approach. Impulse response functions and forecast variance error decomposition methods are expected to be used for measuring these effects.</p>
+<p><strong>Keywords.</strong> Fiscal policy, unemployment, GDP, Australia impulse response, forecast variance error decomposition, bsvars, R</p>
 </blockquote>
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>In many countries, fiscal policy is viewed as a direct means of achieving inclusive development objectives, frequently articulated as twin goals of sustained growth and low poverty (often achieved through low unemployment). However, fiscal policy shocks often occur in multifaceted ways, with simultaneous changes in both revenue and expenditure-side elements of the fiscal balance, making it difficult to disentangle the effects of any one particular policy.</p>
-<p>This study attempts to identify the effect of the following fiscal policy instruments: tax policy, public investment expenditures, and social transfers, on both unemployment and output in the Australian context, using Bayesian Structural Vector Autoregression (BSVAR) approach.</p>
-<p>The analysis is guided by the work of Abubakar, Attahir B. (2016), which used a SVAR approach to estimate the effect of public expenditures and public revenues on Nigerian output and unemployment. This study extends this work by using a more extensive dataset, involving more disaggregated revenue and expenditure variables, the inclusion of monetary policy control variables, as well as through the use of Bayesian estimation.</p>
+<p>In many countries, fiscal policy is viewed as a direct means of achieving inclusive development objectives, frequently articulated as twin goals of sustained growth and low poverty (often achieved through low unemployment). However, fiscal policy shocks often occur in multifaceted ways, with simultaneous changes in both revenue and expenditure-side elements of the fiscal balance, making it difficult to disentangle the effects of any one particular policy shock.</p>
+<p>This study attempts to identify the effect of the following fiscal policy instruments: tax policy, public investment expenditures, and social transfers, on both unemployment and output in the Australian context, using a Bayesian Structural Vector Autoregression (BSVAR) approach.</p>
+<p>The analysis is guided by the work of Abubakar, Attahir B. (2016), which used an SVAR approach to estimate the effect of public expenditures and public revenues on Nigerian output and unemployment. This study extends his work by using a more extensive dataset, containing more disaggregated revenue and expenditure variables, the inclusion of monetary policy control variables, as well as through the use of Bayesian estimation.</p>
 </section>
 <section id="data-sources" class="level2">
 <h2 class="anchored" data-anchor-id="data-sources">Data sources</h2>
-<p>Quarterly data from Q1 1990 to Q4 2022 was sourced from the Australian Bureau of Statistics and the Reserve Bank of Australia and extracted using the <code>readabs</code> and <code>readrba</code> packages in <code>R</code>.</p>
+<p>Quarterly data from Q1 1990 to Q4 2022 was sourced from the Australian Bureau of Statistics (ABS) and the Reserve Bank of Australia (RBA) and extracted using the <code>readabs</code> and <code>readrba</code> packages in <code>R</code>.</p>
+<p>Unemployment rate and nominal GDP data are viewed as the outcome variables while tax revenue, public gross fixed capital formation (i.e., public investment) and government social assistance payments (i.e., social subsidies) are the explanatory variables of interest. Government final consumption is included to control for the effects of less productive, more routine government spending. Lastly, non-tax revenue (which, arguably, have a less distortive effect on markets compared to taxes) and monetary policy reflected through the cash rate target and M3 money supply are also controlled for to avoid omitted variable issues.</p>
 <p>Outcome variables:</p>
 <ul>
 <li>Unemployment rate and nominal GDP</li>
 </ul>
 <p>Explanatory variables of interest</p>
 <ul>
-<li><p>Revenue: Tax and non-tax (gross income less tax) revenue</p></li>
-<li><p>Spending: Public gross fixed capital formation and social assistance payments, government final consumption</p></li>
+<li><p>Revenue: Tax revenue</p></li>
+<li><p>Spending: Public gross fixed capital formation and social assistance payments</p></li>
 </ul>
 <p>Control variables:</p>
 <ul>
+<li>Other fiscal policies: non-tax (gross income less tax) revenue, government final consumption</li>
 <li>Monetary policy: cash rate target and M3 money supply</li>
 </ul>
+<section id="table-1.-data-from-abs-and-rba" class="level5" style="text-align: center;">
+<h5 style="text-align: center;" class="anchored" data-anchor-id="table-1.-data-from-abs-and-rba">Table 1. Data from ABS and RBA</h5>
 <div class="cell">
 <div class="cell-output-display">
 
@@ -178,31 +251,34 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<p>As seen in the figures below, Australian GDP output has been on a relatively steady, upward trend since 1990, along with fiscal revenue and spending. These have been largely accommodated by lowering of interest rates and an expanding money supply. Overall, these have been associated with a downward, albeit volatile trajectory in the unemployment rate. Following the advice of Doppelt (2021), the data is left in original, seasonally-unadjusted form but will be transformed into natural log terms during the analysis.</p>
-<section id="time-series-plots-1990-q1-to-2022-q4-original-values" class="level4" style="text-align: center;">
-<h4 style="text-align: center;" class="anchored" data-anchor-id="time-series-plots-1990-q1-to-2022-q4-original-values">Time series plots: 1990 Q1 to 2022 Q4, original values</h4>
+</section>
+</section>
+<section id="section" class="level1">
+<h1></h1>
+<p>As seen in the figures below, Australian GDP output has been on a relatively steady, upward trend since 1990, along with fiscal revenue and spending. These have, by and large, been accommodated by declining interest rates and an expanding money supply. Overall, these have been associated with a downward, albeit volatile trajectory in the unemployment rate. Currently, the data is left in original, seasonally-unadjusted form as the variable for social benefit payments does not have a seasonally-adjusted version in the ABS website. As such, some seasonal variation between quarters can be observed in time series plots. However, the final version of the data to be used will be determined after further exploration. Lastly, the data will be transformed into natural log terms during the analysis as to interpret the coefficients in the structural matrix as elasticities.</p>
+<section id="figure-1.-time-series-plots-1990-q1-to-2022-q4-original-values" class="level5" style="text-align: center;">
+<h5 style="text-align: center;" class="anchored" data-anchor-id="figure-1.-time-series-plots-1990-q1-to-2022-q4-original-values">Figure 1. Time series plots: 1990 Q1 to 2022 Q4, original values</h5>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="index_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
-</section>
 <section id="preliminary-data-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="preliminary-data-analysis">Preliminary data analysis</h2>
 <section id="acf-and-pacf-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="acf-and-pacf-analysis">ACF and PACF analysis</h3>
-<p>ACF plots show strong, positive, and gradually decaying autocorrelation structures across all variables. Moreover the PACF plots indicate a near-one value at the first lag and much lower, mostly statistically zero values at higher lag orders. These characteristics may be indicating that the variables are following a random walk with drift process and as such may be unit-root non-stationary.</p>
-<section id="autocorrelation-function-acf-plots" class="level4" style="text-align: center;">
-<h4 style="text-align: center;" class="anchored" data-anchor-id="autocorrelation-function-acf-plots">Autocorrelation function (ACF) plots</h4>
+<p>Across variables (which have been transformed into natural log terms), ACF plots show strong, positive, and gradually decaying autocorrelation structures. Moreover various PACF plots indicate a near-one value at the first lag and much lower, mostly statistically zero values at higher lag orders (such as in nominal GDP, social benefits payments, government consumption, and M3). These characteristics may indicate that some variables may be following a random walk with drift process and as such may be unit-root non-stationary.</p>
+<section id="figure-2.1.-autocorrelation-function-acf-plots-of-variables-in-log-terms" class="level6" style="text-align: center;">
+<h6 style="text-align: center;" class="anchored" data-anchor-id="figure-2.1.-autocorrelation-function-acf-plots-of-variables-in-log-terms">Figure 2.1. Autocorrelation function (ACF) plots of variables in log terms</h6>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="index_files/figure-html/ACF plots-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
-<section id="partial-autocorrelation-function-pacf-plots" class="level4" style="text-align: center;">
-<h4 style="text-align: center;" class="anchored" data-anchor-id="partial-autocorrelation-function-pacf-plots">Partial autocorrelation function (PACF) plots</h4>
+<section id="figure-2.2.-partial-autocorrelation-function-pacf-plots-of-variables-in-log-terms" class="level6" style="text-align: center;">
+<h6 style="text-align: center;" class="anchored" data-anchor-id="figure-2.2.-partial-autocorrelation-function-pacf-plots-of-variables-in-log-terms">Figure 2.2. Partial autocorrelation function (PACF) plots of variables in log terms</h6>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="index_files/figure-html/PACF plotsPACF analysis-1.png" class="img-fluid" width="672"></p>
@@ -213,10 +289,27 @@ ul.task-list li input[type="checkbox"] {
 <section id="augmented-dickey-fuller-test-for-unit-roots" class="level3">
 <h3 class="anchored" data-anchor-id="augmented-dickey-fuller-test-for-unit-roots">Augmented Dickey-Fuller test for unit roots</h3>
 <div class="cell">
-
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to implement the Ng and Perron (1998) ADF test procedure</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ngperronADF <span class="ot">&lt;-</span> <span class="cf">function</span>(y){</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  T <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  kmax <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(<span class="dv">12</span><span class="sc">*</span>(((T<span class="dv">-25</span>)<span class="sc">/</span><span class="dv">100</span>)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>)))</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  k <span class="ot">&lt;-</span> kmax <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># run test regression until t-statistic of kth lag &gt; 1.6</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  t <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span>(<span class="fu">abs</span>(t) <span class="sc">&lt;</span> <span class="fl">1.6</span>){</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>      k <span class="ot">&lt;-</span> k <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      adft <span class="ot">&lt;-</span> <span class="fu">ur.df</span>(y, <span class="at">type =</span> <span class="st">"drift"</span>, <span class="at">lags =</span> k)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>      t <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(adft<span class="sc">@</span>testreg<span class="sc">$</span>coefficients[k<span class="sc">+</span><span class="dv">2</span>,][<span class="dv">3</span>])</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  adft_k <span class="ot">&lt;-</span><span class="fu">ur.df</span>(y, <span class="at">type =</span> <span class="st">"drift"</span>, <span class="at">lags =</span> k)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  teststat <span class="ot">&lt;-</span> adft_k<span class="sc">@</span>teststat[<span class="dv">2</span>]</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  cval <span class="ot">&lt;-</span> adft_k<span class="sc">@</span>cval[<span class="dv">2</span>,<span class="dv">2</span>]</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  sig <span class="ot">&lt;-</span> <span class="fu">abs</span>(teststat)<span class="sc">&gt;</span><span class="fu">abs</span>(cval)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="st">"stat"</span> <span class="ot">=</span> teststat,<span class="st">"crit"</span> <span class="ot">=</span> cval,<span class="st">"reject"</span> <span class="ot">=</span> sig))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="adf-test-results-levels-first-and-second-difference" class="level4" style="text-align: center;">
-<h4 style="text-align: center;" class="anchored" data-anchor-id="adf-test-results-levels-first-and-second-difference">ADF test results: levels, first, and second difference</h4>
+<section id="table-2.-adf-test-results-levels-first-and-second-difference" class="level5" style="text-align: center;">
+<h5 style="text-align: center;" class="anchored" data-anchor-id="table-2.-adf-test-results-levels-first-and-second-difference">Table 2. ADF test results: levels, first, and second difference</h5>
 <div class="cell">
 <div class="cell-output-display">
 
@@ -227,15 +320,19 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<p>Augmented Dickey-Fuller tests following the maximum lag-setting procedure of Ng and Perron (1998) were performed on all nine variables. The null hypothesis that a unit roots exists was rejected for ADF tests on levels of tax revenue, non-tax revenue, social benefits payments, government consumption, and M3 supply, indicating that these variables do not have a unit-root. Meanwhile, the first differences of the unemployment rate, government GFCF, and M3 supply variables yielded a significant ADF test result, indicating that these have order of integration of 1. Lastly, it took another differencing for nominal GDP to yield a significant result, indicating an order of integration of 2.</p>
 </section>
 </section>
 </section>
+</section>
+<section id="section-1" class="level1">
+<h1></h1>
+<p>Augmented Dickey-Fuller tests following the maximum lag-setting procedure of Ng and Perron (1998) were performed on all nine variables to deterine stationarity and orders of integration. The null hypothesis that a unit roots exists was rejected for ADF tests on levels of tax revenue, non-tax revenue, social benefits payments, government consumption, and M3 supply, indicating that these variables do not have a unit-root, and may be following trend-stationary autoregressive processes. Meanwhile, the first differences of the unemployment rate, government GFCF, and cash rate target variables yielded a significant ADF test result, indicating that these have order of integration of 1. Lastly, it took another differencing for nominal GDP to yield a significant result, indicating an order of integration of 2. Further analysis of these variables, including a better-calibrated ADF test and cointegration tests will be performed in the future.</p>
 <section id="model-specification" class="level2">
 <h2 class="anchored" data-anchor-id="model-specification">Model specification</h2>
+<p>The use of fiscal policy to stimulate or regulate the economy follows the Kenyesian approach generally practiced around the world (but especially in developing countries) to navigate economies through downturns or potential episodes of overheating, particularly in the short-run. The proposed model aims to investigate the effectiveness of these fiscal measures in managing growth and unemployment.</p>
 <section id="structural-form-sf-model" class="level3">
 <h3 class="anchored" data-anchor-id="structural-form-sf-model">Structural form (SF) model</h3>
-<p>The following SVAR model is specified to represent the system through which the included variables are jointly determined:</p>
+<p>The following SVAR model specification is proposed is to represent the system through which the included variables are jointly determined:</p>
 <p><span class="math display">\[
 \begin{align}
 B_0y_t &amp;= b_0 + B_1 y_{t-1} + \dots + b_p y_{t-p} + u_t\\
@@ -263,15 +360,16 @@ y_t &amp;= \mu_0 + A_1 y_{t-1} + \dots + A_p y_{t-p} + \varepsilon_t\\
 \Sigma &amp;= B_0^{-1}B_0^{-1'}
 \end{align}
 \]</span></p>
-<p>The study will utilize impulse response functions and forecast error variance decomposition methods to measure the effects of the four fiscal levers in the model on the unemployment rate and GDP output.</p>
+<p>The reduced form of the model, where <span class="math inline">\(B_0^{-1}\)</span> is the matrix of contemporaneous effects between variables, allows for model estimation. However, the identification strategy for <span class="math inline">\(B_0^{-1}\)</span> is yet to be finalized, but will likely involve either exclusion restrictions or sign restrictions.</p>
+<p>The study will utilize impulse response functions (IRF) and forecast error variance decomposition (FEVD) methods to measure the effects of the tax policy, public investment, and government social transfers on the unemployment rate and GDP output. IRFs are used to measure the dynamic, marginal effects of orthogonal shocks from the three fiscal levers of interest while FEVD intends to account for the share of explained variability in the outcome variables that can be attributed to explanatory variables of interest.</p>
 </section>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
 <p>Abubakar, Attahir B. (2016): Dynamic effects of fiscal policy on output and unemployment in Nigeria: An econometric investigation, CBN Journal of Applied Statistics, ISSN 2476-8472, The Central Bank of Nigeria, Abuja, Vol. 07, Iss. 2, pp.&nbsp;101-122</p>
-<p>Doppelt, Ross (2021): Should Macroeconomists Use Seasonally Adjuted Time Series? Structural Identification and Bayesian Estimation in Seasonal Vector Autoregressions, Manuscript, Michigan State University</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
