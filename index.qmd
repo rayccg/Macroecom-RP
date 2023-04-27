@@ -24,7 +24,7 @@ The analysis is guided by the work of Abubakar, Attahir B. (2016), which used an
 
 Quarterly data from Q1 1990 to Q4 2022 was sourced from the Australian Bureau of Statistics (ABS) and the Reserve Bank of Australia (RBA) and extracted using the `readabs` and `readrba` packages in `R`.
 
-Unemployment rate and nominal GDP data are viewed as the outcome variables while tax revenue, public gross fixed capital formation (i.e., public investment) and government social assistance payments (i.e., social subsidies) are the explanatory variables of interest. Government final consumption is included to control for the effects of less productive, more routine government spending. Lastly, non-tax revenue (which, arguably, have a less distortionary effect on markets compared to taxes) and monetary policy reflected through the cash rate target and M3 money supply are also controlled for to mitigate omitted variable issues.
+Unemployment rate and nominal GDP data are viewed as the outcome variables while tax revenue, public gross fixed capital formation (i.e., public investment) and government social assistance payments (i.e., social subsidies) are the explanatory variables of interest. Government final consumption is included to control for the effects of less productive, more routine government spending. Lastly, non-tax revenue (which, arguably, have a less distortive effect on markets compared to taxes) and monetary policy reflected through the cash rate target and M3 money supply are also controlled for to avoid omitted variable issues.
 
 Outcome variables:
 
@@ -149,7 +149,7 @@ for (i in 1:9){
 
 ### ACF and PACF analysis
 
-Across variables (which have been transformed into natural log terms), ACF plots show a strong, positive, and gradually decaying autocorrelation structure. Moreover various PACF plots indicate a near-one value at the first lag and much lower, mostly statistically zero values at higher lag orders (such as in nominal GDP, social benefits payments, government consumption, and M3). These characteristics may indicate that some variables may be following a random walk with drift process and as such may be unit-root non-stationary.
+Across variables (which have been transformed into natural log terms), ACF plots show strong, positive, and gradually decaying autocorrelation structures. Moreover various PACF plots indicate a near-one value at the first lag and much lower, mostly statistically zero values at higher lag orders (such as in nominal GDP, social benefits payments, government consumption, and M3). These characteristics may indicate that some variables may be following a random walk with drift process and as such may be unit-root non-stationary.
 
 ###### Figure 2.1. Autocorrelation function (ACF) plots of variables in log terms {style="text-align: center;"}
 
@@ -240,11 +240,11 @@ npadf_lev <- ngperronADF(lnY.df[,i])
 
 # 
 
-Augmented Dickey-Fuller tests following the maximum lag-setting procedure of Ng and Perron (1998) were performed on all nine variables to determine stationarity and orders of integration. The null hypothesis that a unit roots exists was rejected for ADF tests on levels of tax revenue, non-tax revenue, social benefits payments, government consumption, and M3 supply, indicating that these variables do not have a unit-root, and may be following trend-stationary autoregressive processes. Meanwhile, the first differences of the unemployment rate, government GFCF, and cash rate target variables yielded a significant ADF test result, indicating that these have order of integration of 1. Lastly, it took another differencing for nominal GDP to yield a significant result, indicating an order of integration of 2. Further analysis of these variables, including a better-calibrated ADF test and cointegration tests will be performed in the future.
+Augmented Dickey-Fuller tests following the maximum lag-setting procedure of Ng and Perron (1998) were performed on all nine variables to deterine stationarity and orders of integration. The null hypothesis that a unit roots exists was rejected for ADF tests on levels of tax revenue, non-tax revenue, social benefits payments, government consumption, and M3 supply, indicating that these variables do not have a unit-root, and may be following trend-stationary autoregressive processes. Meanwhile, the first differences of the unemployment rate, government GFCF, and cash rate target variables yielded a significant ADF test result, indicating that these have order of integration of 1. Lastly, it took another differencing for nominal GDP to yield a significant result, indicating an order of integration of 2. Further analysis of these variables, including a better-calibrated ADF test and cointegration tests will be performed in the future.
 
 ## Model specification
 
-The use of fiscal policy to stimulate or regulate the economy follows the Keynesian approach generally practiced around the world (but especially in developing countries) to navigate economies through downturns or potential episodes of overheating, particularly in the short-run. The proposed model aims to investigate the effectiveness of these fiscal measures in managing growth and unemployment.
+The use of fiscal policy to stimulate or regulate the economy follows the Kenyesian approach generally practiced around the world (but especially in developing countries) to navigate economies through downturns or potential episodes of overheating, particularly in the short-run. The proposed model aims to investigate the effectiveness of these fiscal measures in managing growth and unemployment.
 
 ### Structural form (SF) model
 
@@ -255,7 +255,7 @@ $$
 B_0y_t &= b_0 + B_1 y_{t-1} + \dots + b_p y_{t-p} + u_t\\
 u_{t}| Y_{t-1} &\sim _{iid} ( 0, I_N)
 \end{align}
-$$ where $y_t$ is a vector of endogenous variables:
+$$ Where $y_t$ is a vector of endogenous variables:
 
 $$y_t=\begin{pmatrix} unemp_t &= \text{unemployment rate}
 \\ nomgdp_t &= \text{nominal GDP}
