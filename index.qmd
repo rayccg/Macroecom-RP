@@ -1,5 +1,5 @@
 ---
-title: "Effects of fiscal policy on unemployment and output in Australia: a Bayesian SVAR approach"
+title: "Effects of Fiscal Policy on Unemployment and Output in Australia: a Bayesian SVAR Approach"
 author: "Ray Gomez"
 
 execute:

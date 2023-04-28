@@ -8,7 +8,7 @@
 
 <meta name="author" content="Ray Gomez">
 
-<title>Macroeconometrics Research Report - Effects of fiscal policy on unemployment and output in Australia: a Bayesian SVAR approach</title>
+<title>Macroeconometrics Research Report - Effects of Fiscal Policy on Unemployment and Output in Australia: a Bayesian SVAR Approach</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -182,7 +182,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Effects of fiscal policy on unemployment and output in Australia: a Bayesian SVAR approach</h1>
+<h1 class="title">Effects of Fiscal Policy on Unemployment and Output in Australia: a Bayesian SVAR Approach</h1>
 </div>
 
 
@@ -216,7 +216,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="data-sources" class="level2">
 <h2 class="anchored" data-anchor-id="data-sources">Data sources</h2>
 <p>Quarterly data from Q1 1990 to Q4 2022 was sourced from the Australian Bureau of Statistics (ABS) and the Reserve Bank of Australia (RBA) and extracted using the <code>readabs</code> and <code>readrba</code> packages in <code>R</code>.</p>
-<p>Unemployment rate and nominal GDP data are viewed as the outcome variables while tax revenue, public gross fixed capital formation (i.e., public investment) and government social assistance payments (i.e., social subsidies) are the explanatory variables of interest. Government final consumption is included to control for the effects of less productive, more routine government spending. Lastly, non-tax revenue (which, arguably, have a less distortive effect on markets compared to taxes) and monetary policy reflected through the cash rate target and M3 money supply are also controlled for to avoid omitted variable issues.</p>
+<p>Unemployment rate and nominal GDP data are viewed as the outcome variables while tax revenue, public gross fixed capital formation (i.e., public investment) and government social assistance payments (i.e., social subsidies) are the explanatory variables of interest. Government final consumption is included to control for the effects of less productive, more routine government spending. Lastly, non-tax revenue (which, arguably, have a less distortionary effect on markets compared to taxes) and monetary policy reflected through the cash rate target and M3 money supply are also controlled for to mitigate omitted variable issues.</p>
 <p>Outcome variables:</p>
 <ul>
 <li>Unemployment rate and nominal GDP</li>
@@ -268,7 +268,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 class="anchored" data-anchor-id="preliminary-data-analysis">Preliminary data analysis</h2>
 <section id="acf-and-pacf-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="acf-and-pacf-analysis">ACF and PACF analysis</h3>
-<p>Across variables (which have been transformed into natural log terms), ACF plots show strong, positive, and gradually decaying autocorrelation structures. Moreover various PACF plots indicate a near-one value at the first lag and much lower, mostly statistically zero values at higher lag orders (such as in nominal GDP, social benefits payments, government consumption, and M3). These characteristics may indicate that some variables may be following a random walk with drift process and as such may be unit-root non-stationary.</p>
+<p>Across variables (which have been transformed into natural log terms), ACF plots show a strong, positive, and gradually decaying autocorrelation structure. Moreover various PACF plots indicate a near-one value at the first lag and much lower, mostly statistically zero values at higher lag orders (such as in nominal GDP, social benefits payments, government consumption, and M3). These characteristics may indicate that some variables may be following a random walk with drift process and as such may be unit-root non-stationary.</p>
 <section id="figure-2.1.-autocorrelation-function-acf-plots-of-variables-in-log-terms" class="level6" style="text-align: center;">
 <h6 style="text-align: center;" class="anchored" data-anchor-id="figure-2.1.-autocorrelation-function-acf-plots-of-variables-in-log-terms">Figure 2.1. Autocorrelation function (ACF) plots of variables in log terms</h6>
 <div class="cell">
@@ -326,19 +326,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="section-1" class="level1">
 <h1></h1>
-<p>Augmented Dickey-Fuller tests following the maximum lag-setting procedure of Ng and Perron (1998) were performed on all nine variables to deterine stationarity and orders of integration. The null hypothesis that a unit roots exists was rejected for ADF tests on levels of tax revenue, non-tax revenue, social benefits payments, government consumption, and M3 supply, indicating that these variables do not have a unit-root, and may be following trend-stationary autoregressive processes. Meanwhile, the first differences of the unemployment rate, government GFCF, and cash rate target variables yielded a significant ADF test result, indicating that these have order of integration of 1. Lastly, it took another differencing for nominal GDP to yield a significant result, indicating an order of integration of 2. Further analysis of these variables, including a better-calibrated ADF test and cointegration tests will be performed in the future.</p>
+<p>Augmented Dickey-Fuller tests following the maximum lag-setting procedure of Ng and Perron (1998) were performed on all nine variables to determine stationarity and orders of integration. The null hypothesis that a unit roots exists was rejected for ADF tests on levels of tax revenue, non-tax revenue, social benefits payments, government consumption, and M3 supply, indicating that these variables do not have a unit-root, and may be following trend-stationary autoregressive processes. Meanwhile, the first differences of the unemployment rate, government GFCF, and cash rate target variables yielded a significant ADF test result, indicating that these have order of integration of 1. Lastly, it took another differencing for nominal GDP to yield a significant result, indicating an order of integration of 2. Further analysis of these variables, including a better-calibrated ADF test and cointegration tests will be performed in the future.</p>
 <section id="model-specification" class="level2">
 <h2 class="anchored" data-anchor-id="model-specification">Model specification</h2>
-<p>The use of fiscal policy to stimulate or regulate the economy follows the Kenyesian approach generally practiced around the world (but especially in developing countries) to navigate economies through downturns or potential episodes of overheating, particularly in the short-run. The proposed model aims to investigate the effectiveness of these fiscal measures in managing growth and unemployment.</p>
+<p>The use of fiscal policy to stimulate or regulate the economy follows the Keynesian approach generally practiced around the world (but especially in developing countries) to navigate economies through downturns or potential episodes of overheating, particularly in the short-run. The proposed model aims to investigate the effectiveness of these fiscal measures in managing growth and unemployment.</p>
 <section id="structural-form-sf-model" class="level3">
 <h3 class="anchored" data-anchor-id="structural-form-sf-model">Structural form (SF) model</h3>
 <p>The following SVAR model specification is proposed is to represent the system through which the included variables are jointly determined:</p>
 <p><span class="math display">\[
 \begin{align}
-B_0y_t &amp;= b_0 + B_1 y_{t-1} + \dots + b_p y_{t-p} + u_t\\
+B_0y_t &amp;= b_0 + B_1 y_{t-1} + \dots + B_p y_{t-p} + u_t\\
 u_{t}| Y_{t-1} &amp;\sim _{iid} ( 0, I_N)
 \end{align}
-\]</span> Where <span class="math inline">\(y_t\)</span> is a vector of endogenous variables:</p>
+\]</span> where <span class="math inline">\(y_t\)</span> is a vector of endogenous variables:</p>
 <p><span class="math display">\[y_t=\begin{pmatrix} unemp_t &amp;= \text{unemployment rate}
 \\ nomgdp_t &amp;= \text{nominal GDP}
 \\ totaltax_t  &amp;= \text{tax revenue}
