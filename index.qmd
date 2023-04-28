@@ -252,7 +252,7 @@ The following SVAR model specification is proposed is to represent the system th
 
 $$
 \begin{align}
-B_0y_t &= b_0 + B_1 y_{t-1} + \dots + b_p y_{t-p} + u_t\\
+B_0y_t &= b_0 + B_1 y_{t-1} + \dots + B_p y_{t-p} + u_t\\
 u_{t}| Y_{t-1} &\sim _{iid} ( 0, I_N)
 \end{align}
 $$ where $y_t$ is a vector of endogenous variables:
