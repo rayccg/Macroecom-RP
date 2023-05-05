@@ -8,7 +8,7 @@ execute:
 bibliography: references.bib
 ---
 
-> **Abstract.** This proposed study attempts to estimate the effects of various fiscal policy instruments on unemployment and output in Australia, using a Bayesian Structural Vector Autoregression approach. Impulse response functions and forecast variance error decomposition methods are expected to be used for measuring these effects.
+> **Abstract.** This proposed study attempts to estimate the effects of various fiscal policy instruments on unemployment and output in Australia, using a Bayesian Structural Vector Autoregression approach. Impulse response functions and forecast variance error decomposition methods are expected to be used for measuring these effects. This study also compares two model specifications -- a basic model with unempolyment, output, fiscal policy, and monetary policy variables; and an extended model which also models heteroskedasticity due to the COVID-19 pandemic. 
 >
 > **Keywords.** Fiscal policy, unemployment, GDP, Australia impulse response, forecast variance error decomposition, bsvars, R
 
@@ -40,6 +40,7 @@ Control variables:
 
 -   Other fiscal policies: non-tax (gross income less tax) revenue, government final consumption
 -   Monetary policy: cash rate target and M3 money supply
+-   External sector: real exchange rate
 
 ```{r set up and libraries, include = F}
 rm(list=ls())
@@ -50,6 +51,8 @@ library(tseries)
 library(urca)
 library(FinTS)
 library(rmarkdown)
+library(corrplot)
+library(parallel)
 ```
 
 ```{r data download, include = F}
@@ -68,15 +71,26 @@ M3.dl   <- read_rba(series_id = "DMAM3N")
 M3 <- to.quarterly(xts(M3.dl$value, M3.dl$date), 
                          OHLC = FALSE)
 
+# real exchange rate (TWI)
+# realTWI.dl   <- read_rba(series_id = "FRERTWI")
+# realTWI <- to.quarterly(xts(realTWI.dl$value, realTWI.dl$date), 
+                         # OHLC = FALSE)
+
 # Unemployment rate: A84423092X
 unemp_rate.dl <- read_abs(series_id = "A84423092X")
 unemp <- to.quarterly(xts(unemp_rate.dl$value, unemp_rate.dl$date), 
                            OHLC = FALSE)
 
-# Nominal GDP: A2302467A
-nomGDP.dl <- read_abs(series_id = "A2302467A")
-nomGDP <- to.quarterly(xts(nomGDP.dl$value, nomGDP.dl$date), 
+# real GDP: A2302459A
+realGDP.dl   <- read_abs(series_id = "A2302459A")
+realGDP <- to.quarterly(xts(realGDP.dl$value, realGDP.dl$date), 
                          OHLC = FALSE)
+
+# Nominal GDP: A2302467A
+# nomGDP.dl <- read_abs(series_id = "A2302467A")
+# nomGDP <- to.quarterly(xts(nomGDP.dl$value, nomGDP.dl$date), 
+#                          OHLC = FALSE)
+
 #summary(unemp_rate)
 ## Fiscal variables
 # Total tax: A2301963V
@@ -99,7 +113,7 @@ pubtrans.dl <- read_abs(series_id = "A2301976F")
 pubtrans <- to.quarterly(xts(pubtrans.dl$value, pubtrans.dl$date), 
                          OHLC = FALSE)
 # Government final consumption: A2302527T
-pubcons.dl <- read_abs(series_id = "A2301976F")
+pubcons.dl <- read_abs(series_id = "A2302527T")
 pubcons <- to.quarterly(xts(pubcons.dl$value, pubcons.dl$date),
                          OHLC = FALSE)
 
@@ -109,21 +123,29 @@ pubcons <- to.quarterly(xts(pubcons.dl$value, pubcons.dl$date),
 
 ```{r data merge and log transform, echo = F}
 # Merge data into one matrix
-Y.df  <- na.omit(merge(unemp, nomGDP , totaltax, nontax, pubinv, 
+Y.df  <- na.omit(merge(unemp, realGDP , totaltax, nontax, pubinv, 
                        pubtrans, pubcons, cashrate, M3))
 
-varname_vec <- c("Unemployment rate", "Nominal GDP", "Tax revenue", "Non-tax revenue", "Gov't GFCF",
+varname_vec <- c("Unemployment rate", "Real GDP", "Tax revenue", "Non-tax revenue", "Gov't GFCF",
                     "Social benefits payments", "Gov't consumption", "Cash rate target", "M3 supply")
 colnames(Y.df) <- varname_vec
 
 Y.df <- Y.df[1:132,]
 # Transform into natural logs
 lnY.df <- log(Y.df)
+
 date <- as.vector(index(cashrate))[1:132]
 T <- length(date)
 
 paged_table(as.data.frame(round(head(lnY.df,4),2)))
 paged_table(as.data.frame(round(tail(lnY.df,4),2)))
+
+# data for input to estimation function 
+lnY.df_num <- c()
+
+for (i in 1:ncol(lnY.df)){
+  lnY.df_num <- cbind(lnY.df_num, as.numeric(lnY.df[,i]))
+}
 
 ```
 
@@ -258,7 +280,7 @@ u_{t}| Y_{t-1} &\sim _{iid} ( 0, I_N)
 $$ where $y_t$ is a vector of endogenous variables:
 
 $$y_t=\begin{pmatrix} unemp_t &= \text{unemployment rate}
-\\ nomgdp_t &= \text{nominal GDP}
+\\ realgdp_t &= \text{real GDP}
 \\ totaltax_t  &= \text{tax revenue}
 \\ nontax_t  &= \text{non-tax revenue}
 \\ pubinv_t  &= \text{government gross fixed capital formation}
@@ -283,6 +305,208 @@ $$
 The reduced form of the model, where $B_0^{-1}$ is the matrix of contemporaneous effects between variables, allows for model estimation. However, the identification strategy for $B_0^{-1}$ is yet to be finalized, but will likely involve either exclusion restrictions or sign restrictions.
 
 The study will utilize impulse response functions (IRF) and forecast error variance decomposition (FEVD) methods to measure the effects of the tax policy, public investment, and government social transfers on the unemployment rate and GDP output. IRFs are used to measure the dynamic, marginal effects of orthogonal shocks from the three fiscal levers of interest while FEVD intends to account for the share of explained variability in the outcome variables that can be attributed to explanatory variables of interest.
+
+
+
+```{r Basic model estimation function}
+# data = input data should be quarterly
+# p = lags
+# S = number of posterior draws
+# sign restritions = Nx1 diagonal of R matrix
+# k1 = kappa1
+# k2 = kappa2, higher value, less shrinkage, more weight on prior
+# start date = start date of Y matrix
+sign_est.basic <- function(data, p, S,  sign.restrictions,
+                           k1=0.2^2, k2=100, start_date = c(1991,1)){
+  # Define Y and X matrices
+  ############################################################
+  # N = no. of variables
+  N = ncol(data)
+  # p = no. of lags
+  K = 1 + p*N
+  # forecast horizon
+  # h       = 8
+  
+  Y       = ts(data[5:nrow(data),], start=start_date, frequency=4)
+  X       = matrix(1,nrow(Y),1)
+  # nrow(X)
+  for (i in 1:p){
+    X     = cbind(X,data[5:nrow(data)-i,])
+  }
+  
+  #t0          = proc.time() # read processor time
+  
+  # Calculate MLE
+  ############################################################
+  A.hat       = solve(t(X)%*%X)%*%t(X)%*%Y
+  Sigma.hat   = t(Y-X%*%A.hat)%*%(Y-X%*%A.hat)/nrow(Y)
+  # round(A.hat,3)
+  # round(Sigma.hat,3)
+  # round(cov2cor(Sigma.hat),3)
+  
+  # Specify prior distribution
+  ############################################################
+  kappa.1     = k1
+  kappa.2     = k2
+  kappa.3     = 1
+  A.prior     = matrix(0,nrow(A.hat),ncol(A.hat))
+  A.prior[2:(N+1),] = kappa.3*diag(N)
+  V.prior     = diag(c(kappa.2,kappa.1*((1:p)^(-2))%x%rep(1,N)))
+  S.prior     = diag(diag(Sigma.hat))
+  nu.prior    = N+1
+  
+  # normal-inverse Wishard posterior parameters
+  ############################################################
+  V.bar.inv   = t(X)%*%X + diag(1/diag(V.prior))
+  V.bar       = solve(V.bar.inv)
+  A.bar       = V.bar%*%(t(X)%*%Y + diag(1/diag(V.prior))%*%A.prior)
+  nu.bar      = nrow(Y) + nu.prior
+  S.bar       = S.prior + t(Y)%*%Y + t(A.prior)%*%diag(1/diag(V.prior))%*%A.prior - t(A.bar)%*%V.bar.inv%*%A.bar
+  S.bar.inv   = solve(S.bar)
+  
+  # posterior draws 
+  ############################################################
+  ## draw from RF posterior
+  # draw Sigma from inverse wishart
+  Sigma.posterior   = rWishart(S, df=nu.bar, Sigma=S.bar.inv)
+  Sigma.posterior   = apply(Sigma.posterior,3,solve)
+  Sigma.posterior   = array(Sigma.posterior,c(N,N,S))
+  
+  # draw A from matrix-variate normal
+  A.posterior       = array(rnorm(prod(c(dim(A.bar),S))),c(dim(A.bar),S))
+  
+  ## draw from SF posterior
+  B.posterior       = array(NA,c(N,N,S))
+  Bplus.posterior       = array(NA,c(N,K,S))
+  L                 = t(chol(V.bar))
+  for (s in 1:S){
+    # Draw B0
+    cholSigma.s     = chol(Sigma.posterior[,,s])
+    B.posterior[,,s]= t(cholSigma.s)
+    A.posterior[,,s]= A.bar + L%*%A.posterior[,,s]%*%cholSigma.s
+    # Draw Bplus
+    Bplus.posterior[,,s] = B.posterior[,,s]%*%t(A.posterior[,,s])
+  }
+  # round(apply(A.posterior,1:2,mean),4)
+  # round(apply(B.posterior,1:2,mean),4)
+  
+  # Identification via sign restrictions on theta0
+  ############################################################
+  # should have N elements
+  #sign.restrictions = c()
+  
+  # generate corresponding R matrix
+  R1 = diag(sign.restrictions)
+  
+  # storage matrices for Q identified estimates
+  i.vec <- c()
+  Q.iden   = array(NA,c(N,N,S))
+  B0.iden = array(NA,c(N,N,S))
+  B1.iden = array(NA,c(N,K,S))
+  A.iden = array (NA,c(K,N,S))
+  
+  pb = txtProgressBar(min = 0, max = S, initial = 0) 
+
+  for (s in 1:S){
+    
+    setTxtProgressBar(pb,s)
+    #cat(". iteration: ", s, "\n")
+    
+    # pick-up a B0 from S
+    B0.tilde <- B.posterior[,,s]
+    IR.0.tilde    = solve(B0.tilde)
+    B1.tilde      = Bplus.posterior[,,s]
+    #IR.1.tilde    = solve(B0.tilde)%*%B1.tilde%*%solve(B0.tilde)
+
+    # Search for appropriate Q 
+    sign.restrictions.do.not.hold = TRUE
+    i=1
+    while (sign.restrictions.do.not.hold){
+      X           = matrix(rnorm(N^2),N,N)
+      QR          = qr(X, tol = 1e-10)
+      Q           = qr.Q(QR,complete=TRUE)
+      R           = qr.R(QR,complete=TRUE)
+      Q           = t(Q %*% diag(sign(diag(R))))
+      B0          = Q%*%B0.tilde
+      B1          = Q%*%B1.tilde
+      B0.inv      = solve(B0)
+      check       = prod(R1 %*% B0.inv %*% diag(N)[,1] > 0)
+      A           = t(solve(B0)%*%B1)
+
+      if (check==1){sign.restrictions.do.not.hold=FALSE}
+      i=i+1
+    }
+    i.vec <- c(i.vec, i)
+    Q.iden[,,s] <- Q
+    B0.iden[,,s] <- B0
+    B0.mean <- apply(B0.iden,1:2,mean)
+    B1.iden[,,s] <- B1
+    B1.mean <- apply(B1.iden,1:2,mean)
+    A.iden[,,s] <- A
+    A.mean <- apply(A.iden,1:2,mean)
+    
+
+  }
+  re <- list("i" = i.vec, "Q" = Q.iden, "B0"= B0.iden, "B0.mean" = B0.mean,
+             "Bplus"= B1.iden, "Bplus.mean" = B1.mean, "A" = A.iden, "A.mean" = A,
+             "A.posterior"=A.posterior, "Sigma.posterior"=Sigma.posterior)
+  return(re)
+}
+
+```
+
+```{r RW sample}
+
+set.seed(1)
+
+y1 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=0, sd=1)
+y2 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=0, sd=1)
+#y1 <- cumsum(rnorm(1000, 0, sd=1))
+#y2 <- cumsum(rnorm(1000, 0, sd=1)) 
+#y3 <- cumsum(rnorm(1000, 0, sd=1)) 
+
+y <- cbind(y1,y2)
+
+par(mfrow=c(1,2))
+plot(y[,1], type = "l", col = "dodgerblue3")
+plot(y[,2], type = "l", col = "firebrick3")
+#plot(y[,3], type = "l", col = "darkorchid3")
+
+
+# numCores <- detectCores()
+# numCores
+# 
+# cl <- makeCluster(numCores)
+# stopCluster(cl)
+#set.seed(1)
+#RW_res <-  sign_est.basic(data=y, p=1, S=5000, c(1,1), k1 = 1^2, k2 = 100)
+#RW_res$A.mean
+
+#apply(RW_res2$A.posterior,1:2,mean)
+#apply(RW_res2$Sigma.posterior,1:2,mean)
+#A.posterior[,,1]
+# B0 <- diag(2)
+# B1 <- cbind(c(0,0),diag(2))
+# t(solve(B0)%*%B0%*%B1)
+
+#dim(RW_res$A.mean)
+
+
+basic_mod <- sign_est.basic(lnY.df_num,p=4,S=50000,c(-1, 1, 1, 1, 1, 1,-1, 1, -1))
+#basic$i
+#basic$Q
+#basic$B0
+#basic$B0.mean
+
+#solve(RW_res$B0.mean)%*%RW_res$B0.mean%*%RW_res$B1.mean
+#basic_mod <- sign_est.basic(lnY.df_num,4,100,c(-1, -1, 1, -1, -1, 1,-1, 1, -1))
+
+
+
+```
+
+
+
 
 ## References
 
