@@ -211,6 +211,8 @@ ngperronADF <- function(y){
   }
   adft_k <-ur.df(y, type = "drift", lags = k)
   adft_k_diff <-ur.df(diff(y), type = "none", lags = k-1)
+  # adft_k = tseries::adf.test(y, k = k) 
+  
   teststat <- adft_k@teststat[2]
   cval <- adft_k@cval[2,2]
   sig <- abs(teststat)>abs(cval)
