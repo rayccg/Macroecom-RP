@@ -18,7 +18,7 @@ In many countries, fiscal policy is viewed as a direct means of achieving inclus
 
 This study attempts to identify the effect of the following fiscal policy instruments: tax policy, public investment expenditures, and social transfers, on both unemployment and output in the Australian context, using a Bayesian Structural Vector Autoregression (BSVAR) approach.
 
-The analysis is guided by the work of Abubakar, Attahir B. (2016), which used an SVAR approach to estimate the effect of public expenditures and public revenues on Nigerian output and unemployment. This study extends his work by using a more extensive dataset, containing more disaggregated revenue and expenditure variables, the inclusion of monetary policy control variables, as well as through the use of Bayesian estimation.
+The analysis is guided by the work of @abubakar2016dynamic, which used an SVAR approach to estimate the effect of public expenditures and public revenues on Nigerian output and unemployment. This study extends his work by using a more extensive dataset, containing more disaggregated revenue and expenditure variables, the inclusion of monetary policy control variables, as well as through the use of Bayesian estimation.
 
 ## Data sources
 
@@ -509,5 +509,3 @@ basic_mod <- sign_est.basic(lnY.df_num,p=4,S=50000,c(-1, 1, 1, 1, 1, 1,-1, 1, -1
 
 
 ## References
-
-Abubakar, Attahir B. (2016): Dynamic effects of fiscal policy on output and unemployment in Nigeria: An econometric investigation, CBN Journal of Applied Statistics, ISSN 2476-8472, The Central Bank of Nigeria, Abuja, Vol. 07, Iss. 2, pp. 101-122
