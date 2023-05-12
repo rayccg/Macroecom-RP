@@ -210,6 +210,7 @@ ngperronADF <- function(y){
       t <- as.numeric(adft@testreg$coefficients[k+2,][3])
   }
   adft_k <-ur.df(y, type = "drift", lags = k)
+  adft_k_diff <-ur.df(diff(y), type = "none", lags = k-1)
   teststat <- adft_k@teststat[2]
   cval <- adft_k@cval[2,2]
   sig <- abs(teststat)>abs(cval)
