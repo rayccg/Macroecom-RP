@@ -314,54 +314,46 @@ and $B_0^{-1}=B$ is the matrix of contemporaneous effects between variables.
 
 For the basic model, the column-wise covariance matrix is set as $\Omega=I_N$. The likelihood function is expressed as:
 
-$$P(Y,X|A,\Sigma) \propto det(\Sigma)^{-\frac{T}{2}} exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-XA)'(Y-XA) \right] \right\}\\$$
-$$=det(\Sigma)^{-\frac{T}{2}} exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\hat{A})'X'X(A-\hat{A}) \right] \right\} exp \left\{-\frac{1}{2} tr \left[\Sigma^{-1}(Y-X \hat{A})'(Y-X \hat{A}) \right] \right\}$$
+$$P(Y,X|A,\Sigma) \propto det(\Sigma)^{-\frac{T}{2}} exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-XA)'(Y-XA) \right] \right\}\\$$ $$=det(\Sigma)^{-\frac{T}{2}} exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\hat{A})'X'X(A-\hat{A}) \right] \right\} exp \left\{-\frac{1}{2} tr \left[\Sigma^{-1}(Y-X \hat{A})'(Y-X \hat{A}) \right] \right\}$$
 
 where the maximum likelihood estimators are expressed as:
 
-$$\hat{A} = (X'X)^{-1}X'Y $$
-$$\hat{\Sigma} = \frac{1}{T} (Y-X \hat{A})'(Y-X \hat{A})$$
+$$\hat{A} = (X'X)^{-1}X'Y $$ $$\hat{\Sigma} = \frac{1}{T} (Y-X \hat{A})'(Y-X \hat{A})$$
 
 The prior for $A$ and $\Sigma$ is assumed to be a matrix-normal inverse Wishart distribution that follows the Minnesota specification of Doan, Litterman & Sims (1984):
 
 $$p(A,\Sigma) =MNIW(\underline{A},\underline{S},\underline{V},\underline{\nu})$$
 
-$$A|\Sigma\sim MN(\underline{A},\Sigma,\underline{V})$$
-$$\Sigma\sim IW_N(\underline{S},\underline{\nu})$$
+$$A|\Sigma\sim MN_{K\times N}(\underline{A},\Sigma,\underline{V})$$ $$\Sigma\sim IW_N(\underline{S},\underline{\nu})$$
 
 where:
 
-$$\underline{A} = [0_{N \times 1} \quad I_N \quad 0_{N \times (p-1)N}]'$$
-$$\underline{V} = diag([\kappa_2 \quad \kappa_1 (p^{-2} \otimes I_N)])$$
+$$\underline{A} = [0_{N \times 1} \quad I_N \quad 0_{N \times (p-1)N}]'$$ $$\underline{V} = diag([\kappa_2 \quad \kappa_1 (p^{-2} \otimes I_N)])$$
 
 This leads to the following posterior distribution, from which the basic reduced form model will be estimated:
 
-$$P(A|Y,X,\Sigma)=MN_{K\times N}(\bar{A},\Sigma,\bar{V})$$
-$$P(\Sigma|Y,X)=IW_N(\bar{S},\bar{\nu})\\$$
+$$P(A|Y,X,\Sigma)=MN_{K\times N}(\bar{A},\Sigma,\bar{V})$$ $$P(\Sigma|Y,X)=IW_N(\bar{S},\bar{\nu})\\$$
 
-$$\bar{V}=(X'X+\underline{V}^{-1})^{-1}$$
-$$\bar{A}=\bar{V}(X'Y+\underline{V}^{-1}\underline{A})$$
-$$\bar{\nu}=T+\underline{\nu}$$
-$$\bar{S}=\underline{S}+Y'Y+\underline{A}'\underline{V}^{-1}\underline{A}-
+$$\bar{V}=(X'X+\underline{V}^{-1})^{-1}$$ $$\bar{A}=\bar{V}(X'Y+\underline{V}^{-1}\underline{A})$$ $$\bar{\nu}=T+\underline{\nu}$$ $$\bar{S}=\underline{S}+Y'Y+\underline{A}'\underline{V}^{-1}\underline{A}-
 \bar{A}'\bar{V}^{-1}\bar{A}$$
 
 ### Extended model
 
 For the extended model, the column-wise covariance matrix is set to $\Omega=\text{diag}(H^2)$, where $H$ is a vector of COVID volatility variables:
 
-$$H=[1\quad...\quad1 \quad h_0\quad h_1\quad h_2\quad 1+(h_2-1)\rho\quad 1+(h_2-1)\rho^2\quad...]'$$ 
+$$H=[1\quad...\quad1 \quad h_0\quad h_1\quad h_2\quad 1+(h_2-1)\rho\quad 1+(h_2-1)\rho^2\quad...]'$$
 
-Intuitively, volatility variables for periods before COVID are set to unity. Heightened volatility during the first three quarters of COVID are parameterized, before they are assumed to decay gradually beginning at the fourth quarter since the pandemic's onset. 
+Intuitively, volatility variables for periods before COVID are set to unity. Heightened volatility during the first three quarters of COVID are parameterized, before they are assumed to decay gradually beginning at the fourth quarter since the pandemic's onset.
 
-These COVID volatility parameters $\theta=(h_0\quad h_1\quad h_2\quad\rho)$ are estimated from their own separate posterior as proposed by Lenza & Primiceri (2020):
+These COVID volatility parameters $\theta=(h_0\quad h_1\quad h_2\quad\rho)$ are estimated from their own marginal posterior as proposed by Lenza & Primiceri (2020):
 
 $$P(\theta|Y,X,\underline{\gamma})\propto P(Y,X|\theta,\underline{\gamma})P(\theta|\underline{\gamma})$$
 
-where the likelihood function is given as: 
+where the likelihood function is given as:
 
 $$P(Y,X|\theta,\underline{\gamma})\propto \Bigg(\prod^T_{t=1}h_t^{-N}\Bigg)||\underline{V}||^{\frac{N}{2}}||\underline{S}||^{\frac{\underline{\nu}}{2}}||\tilde{X}'\tilde{X}+\underline{V}^{-1}||^{\frac{N}{2}}\\$$
 
-$$||\underline{S}+\hat{\tilde{E}}'\hat{\tilde{E}}+(\hat{\tilde{A}}-\tilde{Y}+\tilde{X}\underline{A})'\underline{V}^{-1}(\hat{\tilde{A}}-\tilde{Y}+\tilde{X}\underline{A})||^{-\frac{T-p+\underline{\nu}}{2}}$$ 
+$$||\underline{S}+\hat{\tilde{E}}'\hat{\tilde{E}}+(\hat{\tilde{A}}-\tilde{Y}+\tilde{X}\underline{A})'\underline{V}^{-1}(\hat{\tilde{A}}-\tilde{Y}+\tilde{X}\underline{A})||^{-\frac{T-p+\underline{\nu}}{2}}$$
 
 where $\tilde{X}_t=\frac{(1,Y_t,...,Y_{t-p})'}{h_t}$, $\tilde{\hat{A}}=(\tilde{X}'\tilde{X}-\underline{V}^{-1})^{-1}$, and $\underline{\gamma}=(\underline{A},\underline{S},\underline{V},\underline{\nu})$
 
@@ -390,13 +382,9 @@ $$H^{(s)}=[1\quad...\quad1 \quad h_0^{(s)}\quad h_1^{(s)}\quad h_2^{(s)}\quad 1+
 
 Steps 2 to 4 are repeated $S_1+S_2$ times and $S_2$ draws are used to draw $A$ and $\Sigma$ from the following posterior distribution:
 
-$$P(A|Y,X,\Sigma,H)=MN_{K\times N}(\bar{A},\Sigma,\bar{V})$$
-$$P(\Sigma|Y,X,H)=IW_N(\bar{S},\bar{\nu})\\$$
+$$P(A|Y,X,\Sigma,H)=MN_{K\times N}(\bar{A},\Sigma,\bar{V})$$ $$P(\Sigma|Y,X,H)=IW_N(\bar{S},\bar{\nu})\\$$
 
-$$\bar{V}=(X'\text{diag}(H^2)X+\underline{V}^{-1})^{-1}$$
-$$\bar{A}=\bar{V}(X'\text{diag}(H^2)Y+\underline{V}^{-1}\underline{A})^{-1}$$
-$$\bar{\nu}=T+\underline{\nu}$$
-$$\bar{S}=\underline{S}+Y'\text{diag}(H^2)Y+\underline{A}'\underline{V}^{-1}\underline{A}-
+$$\bar{V}=(X'\text{diag}(H^2)X+\underline{V}^{-1})^{-1}$$ $$\bar{A}=\bar{V}(X'\text{diag}(H^2)Y+\underline{V}^{-1}\underline{A})^{-1}$$ $$\bar{\nu}=T+\underline{\nu}$$ $$\bar{S}=\underline{S}+Y'\text{diag}(H^2)Y+\underline{A}'\underline{V}^{-1}\underline{A}-
 \bar{A}'\bar{V}^{-1}\bar{A}$$
 
 ### Identification
@@ -410,19 +398,20 @@ $$
 Y &= XA + U\\
 U| X &\sim _{iid} MN_{T\times N}( 0, \Sigma, \Omega)\\
 \end{align}
-$$ For each draw reduced form posteriors, the candidate contemporeneous effects matrix is derived as: $$\tilde{B}=\tilde{B}^{-1}_0=\text{chol}(\Sigma)$$
+$$ For each draw from the reduced form posteriors, the candidate contemporaneous effects matrix is derived as: $$\tilde{B}=\tilde{B}^{-1}_0=\text{chol}(\Sigma)$$
 
-Contemporaneous effects matrix $B$ is identified by searching for an appopriate rotation matrix $Q$ such that prescribed sign restrictions hold:
+Contemporaneous effects matrix $B$ is identified by searching for an appropriate rotation matrix $Q$ such that prescribed sign restrictions hold:
 
-$$B = Q\tilde{B}$$ 
+$$B = Q\tilde{B}$$
 
 such that:
 
-$$R_nf(\tilde{B}_0,\tilde{B}_+)e_n\geq0$$
-$$f(\tilde{B}_0,\tilde{B}_+)=\Phi_0=\tilde{B}^{-1}_0$$
+$$R_nf(\tilde{B}_0,\tilde{B}_+)e_n\geq0$$ $$f(\tilde{B}_0,\tilde{B}_+)=\Phi_0=\tilde{B}^{-1}_0$$
 
 ### Estimation with artificial data
-To check the validity of the algorithms, two independent bi-variate random walk with drift processes were generated to simulate unit-root non-stationary macroeconoic variables.
+
+To check the validity of the algorithms, two independent bi-variate random walk with drift processes were generated to simulate unit-root non-stationary macroeconomic variables.
+
 ```{r RW sample}
 set.seed(1)
 y1 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=1,sd=1)
@@ -437,6 +426,7 @@ plot(y=y2, x = 1:1001, type = "l", col = "plum4",
 ```
 
 The estimation procedure for the basic model is implemented in `R` by the following function, `sign.basic`:
+
 ```{r Basic model estimation function, echo = TRUE}
 # data = input data should be quarterly
 # p = lags
@@ -594,11 +584,10 @@ colnames(Sigma.mean_tab) <- c("RW1", "RW2")
 paged_table(A.mean_tab)
 paged_table(Sigma.mean_tab)
 ```
-Estimating the extended model involved designing three functions in `R`:
-1.  `v.posterior.mode` takes in the data and numerically computes for the posterior mode of $\theta$, i.e., COVID volatility parameters; 
-2.  `mh.mcmc` takes in data, the posterior mode, and inverse Hessian from `v.posterior.mode` to run the above-mentioned Metropolis MCMC algorithm for a specified number of iterations; and
-3.  `sign.extension` takes in data and draws of $\theta$ from `mh.mcmc` to return the posterior draws for the extended model.
 
+Estimating the extended model involved designing three functions in `R`:
+
+1.  `v.posterior.mode` takes in the data and numerically computes for the posterior mode of $\theta$, i.e., COVID volatility parameters;
 
 ```{r COVID parameters posterior maximization, echo = TRUE}
 v.posterior.mode <- function(data, p=4, k1=1, k2=100, start_date=c(1991,1)){
@@ -682,7 +671,9 @@ v.posterior.mode <- function(data, p=4, k1=1, k2=100, start_date=c(1991,1)){
 }
 ```
 
-```{r Metropolis-Hastings function}
+2.  `mh.mcmc` takes in data, the posterior mode of $\theta$, and the inverse Hessian from `v.posterior.mode` to run the above-mentioned Metropolis MCMC algorithm for a specified number of iterations; and
+
+```{r Metropolis-Hastings function, echo = TRUE}
 mh.mcmc <- function(data, p=1, S.mh = 1000, c, W = diag(4), theta.init,
                     k1 = 1, k2 = 100, start_date = c(1991,1)){
  # N = no. of variables
@@ -793,7 +784,7 @@ mh.mcmc <- function(data, p=1, S.mh = 1000, c, W = diag(4), theta.init,
     theta_old <- Theta[s,]  
   }
   
-  colnames(Theta) <- c("v0", "v1" , "v2", "rho")
+  colnames(Theta) <- c("h0", "h1" , "h2", "rho")
 
   re <- list(Theta=Theta, 
              AcceptRate = 1 - rejectionRate(as.mcmc(Theta[,1])))
@@ -802,7 +793,9 @@ mh.mcmc <- function(data, p=1, S.mh = 1000, c, W = diag(4), theta.init,
 
 ```
 
-```{r Extended model}
+3.  `sign.extension` takes in data and draws of $\theta$ from `mh.mcmc` to return the posterior draws for the extended model.
+
+```{r Extended model, echo = TRUE}
 sign.extension <- function(data, p=4, S=100,  sign.restrictions = c(0, 0, 1, 1, 1, -1, 1, -1, 1),
                            k1=1, k2=100, shockvar = 5, start_date = c(1991,1), Theta.mh){
 
@@ -951,9 +944,9 @@ sign.extension <- function(data, p=4, S=100,  sign.restrictions = c(0, 0, 1, 1, 
 
 ```
 
-Applying `v.posterior.mode` on the artifcial data yielded a mode of $\theta^{(s=1)}=(1,1,1,0.8)$ which is appropriate given that there is no COVID volatility in generated random walk series. However, the numerical optimization yielded a non-positive definite Hessian which cannot be used to initialize the Metropolis MCMC. As such, $W$ was instead set to an identity matrix. 
+Applying `v.posterior.mode` on the artifcial data yielded a mode of $\theta^{(s=1)}=(1,1,1,0.8)$ which is appropriate given that there is no COVID volatility in generated random walk series. However, the numerical optimization yielded a non-positive definite Hessian which cannot be used to initialize the Metropolis MCMC. As such, $W$ was instead set to an identity matrix.
 
-Running `mh.mcmc` on the artificial data for 15000 iterations yields the following draws. Unfortunately, the MCMC draws failed to converge into a stationary series within these number of iterations. 
+Running `mh.mcmc` on the artificial data for 15000 iterations yields the following draws. Unfortunately, the MCMC draws failed to converge into a stationary series within these number of iterations.
 
 ```{r RW Metropolis MCMC}
 set.seed(1)
@@ -961,12 +954,14 @@ RW.post.mode <- v.posterior.mode(y, p = 1)
 RW.mcmc <- mh.mcmc(y, c = 0.00001, W = diag(4), 
                    theta.init = RW.post.mode$maximizer, S.mh = 15000)
 plot.ts(RW.mcmc$Theta, main = "Metropolis MCMC draws")
-print(RW.post.mode$maximizer) 
-print(RW.post.mode$hessian) 
+#print(RW.post.mode$maximizer) 
+#print(RW.post.mode$hessian) 
 #RM.theta$AcceptRate
 ```
 
-Nonetheless, using these draws in the estimation procudure implemented by `sign.extension` still yields correct estimates for $A$ and $\Sigma$, as seen in the results below. Note however, memory capacity of the computer used only allowed for 2000 draws.
+Nonetheless, using these draws in the estimation procedure implemented by `sign.extension` still yields correct estimates for $A$ and $\Sigma$, as seen in the results below. Note however, memory capacity of the computer used only allowed for 2000 draws for the extended model.
+
+(Note: 10,000 draws is possible for estimation using the actual macroeconomic data given the much fewer observations)
 
 ```{r}
 RW_estimation_ext <-  sign.extension(y, p = 1, S = 2000, 
@@ -982,7 +977,6 @@ colnames(Sigma.mean_tab) <- c("RW1", "RW2")
 paged_table(A.mean_tab)
 paged_table(Sigma.mean_tab)
 ```
-
 
 ```{r Data MCMC runs, eval = F, include = F}
 
