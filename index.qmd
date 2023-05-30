@@ -8,17 +8,17 @@ execute:
 bibliography: references.bib
 ---
 
-> **Abstract.** This proposed study attempts to estimate the effects of various fiscal policy instruments on unemployment and output in Australia, using a Bayesian Structural Vector Autoregression approach. Impulse response functions and forecast variance error decomposition methods are expected to be used for measuring these effects. This study also compares two model specifications -- a basic model with unempolyment, output, fiscal policy, and monetary policy variables; and an extended model which also models heteroskedasticity due to the COVID-19 pandemic. 
+> **Abstract.** This proposed study attempts to estimate the effects of fiscal policy instruments on unemployment and output in Australia, using a Bayesian Structural Vector Autoregression (BSVAR) model which accounts for heightened volatility due to the COVID-19 pandemic. Impulse response functions are used for measuring these effects.
 >
-> **Keywords.** Fiscal policy, unemployment, GDP, Australia impulse response, forecast variance error decomposition, bsvars, R
+> **Keywords.** Fiscal policy, unemployment, GDP, Australia impulse response, COVID-19, bsvars, R
 
 ## Introduction
 
 In many countries, fiscal policy is viewed as a direct means of achieving inclusive development objectives, frequently articulated as twin goals of sustained growth and low poverty (often achieved through low unemployment). However, fiscal policy shocks often occur in multifaceted ways, with simultaneous changes in both revenue and expenditure-side elements of the fiscal balance, making it difficult to disentangle the effects of any one particular policy shock.
 
-This study attempts to identify the effect of the following fiscal policy instruments: tax policy, public investment expenditures, and social transfers, on both unemployment and output in the Australian context, using a Bayesian Structural Vector Autoregression (BSVAR) approach.
+This study attempts to identify the effect of the following fiscal policy instrument: tax policy, public investment expenditures, and social transfers, on both unemployment and output in the Australian context, using a Bayesian Structural Vector Autoregression (BSVAR) approach.
 
-The analysis is guided by the work of Abubakar, Attahir B. (2016), which used an SVAR approach to estimate the effect of public expenditures and public revenues on Nigerian output and unemployment. This study extends his work by using a more extensive dataset, containing more disaggregated revenue and expenditure variables, the inclusion of monetary policy control variables, as well as through the use of Bayesian estimation.
+The analysis is guided by the work of Abubakar, Attahir B. (2016), which used an SVAR approach to estimate the effect of public expenditures and public revenues on Nigerian output and unemployment and Lenza & Primiceri (2020) which proposes an estimation procedure for VARs after the COVID-19 pandemic. This study extends their work by using a more extensive dataset, containing more disaggregated revenue and expenditure variables, the inclusion of monetary policy control variables, and applying the COVID volatility model into a structural analysis.
 
 ## Data sources
 
@@ -60,7 +60,7 @@ library(truncnorm)
 library(mvtnorm)
 library(plot3D)
 library(HDInterval)
-library("RColorBrewer")
+library(RColorBrewer)
 ```
 
 ```{r data download, include = F}
@@ -160,6 +160,10 @@ for (i in 1:ncol(lnY.df)){
   lnY.df_num <- cbind(lnY.df_num, as.numeric(lnY.df[,i]))
 }
 
+# Return unemployment rate and cash rate target to non-log terms
+lnY.df_num[,1] <- Y.df[,1] 
+lnY.df_num[,8] <- Y.df[,8] 
+
 ```
 
 # 
@@ -240,9 +244,9 @@ adf_results_fd <- c()
 adf_results_fd2 <- c()
 
 for (i in 1:9){
-npadf_lev <- ngperronADF(lnY.df[,i])  
-npadf_fd <- ngperronADF(diff(lnY.df[,i])[-1]) 
-npadf_fd2 <- ngperronADF(diff(diff(lnY.df[,i])[-1])[-1]) 
+npadf_lev <- ngperronADF(lnY.df_num[,i])  
+npadf_fd <- ngperronADF(diff(lnY.df_num[,i])[-1]) 
+npadf_fd2 <- ngperronADF(diff(diff(lnY.df_num[,i])[-1])[-1]) 
 
 
 adf_results_lev <- round(rbind(adf_results_lev,c(npadf_lev[[1]],
@@ -268,7 +272,7 @@ paged_table(as.data.frame(adf_results))
 
 
 for (i in 1:9){
-npadf_lev <- ngperronADF(lnY.df[,i])  
+npadf_lev <- ngperronADF(lnY.df_num[,i])  
 #npadf_fd <- ngperronADF(diff(lnY.df[,i])[-1]p)  
 }
 ```
@@ -281,16 +285,15 @@ Augmented Dickey-Fuller tests following the maximum lag-setting procedure of Ng 
 
 The use of fiscal policy to stimulate or regulate the economy follows the Keynesian approach generally practiced around the world (but especially in developing countries) to navigate economies through downturns or potential episodes of overheating, particularly in the short-run. The proposed model aims to investigate the effectiveness of these fiscal measures in managing growth and unemployment.
 
-### Structural form (SF) model
-
-The following SVAR model specification is proposed is to represent the system through which the included variables are jointly determined:
+Estimation proceeds through the following reduced form model:
 
 $$
 \begin{align}
-B_0y_t &= b_0 + B_1 y_{t-1} + \dots + B_p y_{t-p} + u_t\\
-u_{t}| Y_{t-1} &\sim _{iid} ( 0, I_N)
+Y &= XA + U\\
+U| X &\sim _{iid} MN_{T\times N}( 0, \Sigma, \Omega)\\
+\Sigma &= B_0^{-1}B_0^{-1'}
 \end{align}
-$$ where $y_t$ is a vector of endogenous variables:
+$$ where matrix $Y$ contains vectors of endogenous variables $y_t$:
 
 $$y_t=\begin{pmatrix} unemp_t &= \text{unemployment rate}
 \\ realgdp_t &= \text{real GDP}
@@ -303,31 +306,145 @@ $$y_t=\begin{pmatrix} unemp_t &= \text{unemployment rate}
 \\ M3_t  &= \text{M3 money supply}
 \end{pmatrix}$$
 
-and the structural matrix $B_0$ summarizes the contemporaneous relationships between these variables.
+and $B_0^{-1}=B$ is the matrix of contemporaneous effects between variables.
 
-### Reduced form (RF) model
+## Estimation and identification
+
+### Basic model
+
+For the basic model, the column-wise covariance matrix is set as $\Omega=I_N$. The likelihood function is expressed as:
+
+$$P(Y,X|A,\Sigma) \propto det(\Sigma)^{-\frac{T}{2}} exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-XA)'(Y-XA) \right] \right\}\\$$
+$$=det(\Sigma)^{-\frac{T}{2}} exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\hat{A})'X'X(A-\hat{A}) \right] \right\} exp \left\{-\frac{1}{2} tr \left[\Sigma^{-1}(Y-X \hat{A})'(Y-X \hat{A}) \right] \right\}$$
+
+where the maximum likelihood estimators are expressed as:
+
+$$\hat{A} = (X'X)^{-1}X'Y $$
+$$\hat{\Sigma} = \frac{1}{T} (Y-X \hat{A})'(Y-X \hat{A})$$
+
+The prior for $A$ and $\Sigma$ is assumed to be a matrix-normal inverse Wishart distribution that follows the Minnesota specification of Doan, Litterman & Sims (1984):
+
+$$p(A,\Sigma) =MNIW(\underline{A},\underline{S},\underline{V},\underline{\nu})$$
+
+$$A|\Sigma\sim MN(\underline{A},\Sigma,\underline{V})$$
+$$\Sigma\sim IW_N(\underline{S},\underline{\nu})$$
+
+where:
+
+$$\underline{A} = [0_{N \times 1} \quad I_N \quad 0_{N \times (p-1)N}]'$$
+$$\underline{V} = diag([\kappa_2 \quad \kappa_1 (p^{-2} \otimes I_N)])$$
+
+This leads to the following posterior distribution, from which the basic reduced form model will be estimated:
+
+$$P(A|Y,X,\Sigma)=MN_{K\times N}(\bar{A},\Sigma,\bar{V})$$
+$$P(\Sigma|Y,X)=IW_N(\bar{S},\bar{\nu})\\$$
+
+$$\bar{V}=(X'X+\underline{V}^{-1})^{-1}$$
+$$\bar{A}=\bar{V}(X'Y+\underline{V}^{-1}\underline{A})$$
+$$\bar{\nu}=T+\underline{\nu}$$
+$$\bar{S}=\underline{S}+Y'Y+\underline{A}'\underline{V}^{-1}\underline{A}-
+\bar{A}'\bar{V}^{-1}\bar{A}$$
+
+### Extended model
+
+For the extended model, the column-wise covariance matrix is set to $\Omega=\text{diag}(H^2)$, where $H$ is a vector of COVID volatility variables:
+
+$$H=[1\quad...\quad1 \quad h_0\quad h_1\quad h_2\quad 1+(h_2-1)\rho\quad 1+(h_2-1)\rho^2\quad...]'$$ 
+
+Intuitively, volatility variables for periods before COVID are set to unity. Heightened volatility during the first three quarters of COVID are parameterized, before they are assumed to decay gradually beginning at the fourth quarter since the pandemic's onset. 
+
+These COVID volatility parameters $\theta=(h_0\quad h_1\quad h_2\quad\rho)$ are estimated from their own separate posterior as proposed by Lenza & Primiceri (2020):
+
+$$P(\theta|Y,X,\underline{\gamma})\propto P(Y,X|\theta,\underline{\gamma})P(\theta|\underline{\gamma})$$
+
+where the likelihood function is given as: 
+
+$$P(Y,X|\theta,\underline{\gamma})\propto \Bigg(\prod^T_{t=1}h_t^{-N}\Bigg)||\underline{V}||^{\frac{N}{2}}||\underline{S}||^{\frac{\underline{\nu}}{2}}||\tilde{X}'\tilde{X}+\underline{V}^{-1}||^{\frac{N}{2}}\\$$
+
+$$||\underline{S}+\hat{\tilde{E}}'\hat{\tilde{E}}+(\hat{\tilde{A}}-\tilde{Y}+\tilde{X}\underline{A})'\underline{V}^{-1}(\hat{\tilde{A}}-\tilde{Y}+\tilde{X}\underline{A})||^{-\frac{T-p+\underline{\nu}}{2}}$$ 
+
+where $\tilde{X}_t=\frac{(1,Y_t,...,Y_{t-p})'}{h_t}$, $\tilde{\hat{A}}=(\tilde{X}'\tilde{X}-\underline{V}^{-1})^{-1}$, and $\underline{\gamma}=(\underline{A},\underline{S},\underline{V},\underline{\nu})$
+
+and the priors are assumed to be: $h_0,h_1,h_2\sim Pareto(1,1)$ and $\rho\sim Beta(3,1.5)$
+
+Sampling from the above posterior is conducted via the following Metropolis MCMC algorithm:
+
+1.  Initialize $\theta$ at the posterior mode which was located via numerical optimization
+
+2.  Draw candidate $\theta^{*}$ from $N_4(\theta^{(s-1)},cW)$, where $W$ is the inverse Hessian of the negative log posterior of $\theta$ at the mode, which is also calculated computationally, and $c$ is a scaling factor.
+
+3.  Set:
+
+$$\theta^{(s)}=  \begin{cases}
+        \theta^* & \text{with pr.} \quad \alpha^{(s)} 
+        \\
+        \\
+        \theta^{(s-1)} & \text{with pr.} \quad 1-\alpha^{(s)} 
+  \end{cases}$$
+
+$$\alpha^{(s)} =\text{min}\Big[1,\frac{P(\theta^*|Y,X,\underline{\gamma})}{P(\theta^{(s-1)}|Y,X,\underline{\gamma})}\Big]$$
+
+4.  Define $H^{(s)}$ matrix using $\theta^{(s)}$:
+
+$$H^{(s)}=[1\quad...\quad1 \quad h_0^{(s)}\quad h_1^{(s)}\quad h_2^{(s)}\quad 1+(h_2^{(s)}-1)\rho^{(s)}\quad 1+(h_2^{(s)}-1)\rho^{(s)2}\quad...]'$$
+
+Steps 2 to 4 are repeated $S_1+S_2$ times and $S_2$ draws are used to draw $A$ and $\Sigma$ from the following posterior distribution:
+
+$$P(A|Y,X,\Sigma,H)=MN_{K\times N}(\bar{A},\Sigma,\bar{V})$$
+$$P(\Sigma|Y,X,H)=IW_N(\bar{S},\bar{\nu})\\$$
+
+$$\bar{V}=(X'\text{diag}(H^2)X+\underline{V}^{-1})^{-1}$$
+$$\bar{A}=\bar{V}(X'\text{diag}(H^2)Y+\underline{V}^{-1}\underline{A})^{-1}$$
+$$\bar{\nu}=T+\underline{\nu}$$
+$$\bar{S}=\underline{S}+Y'\text{diag}(H^2)Y+\underline{A}'\underline{V}^{-1}\underline{A}-
+\bar{A}'\bar{V}^{-1}\bar{A}$$
+
+### Identification
+
+Sign restrictions are used as the identification strategy for both models.
+
+Given the reduced form model:
 
 $$
 \begin{align}
-y_t &= \mu_0 + A_1 y_{t-1} + \dots + A_p y_{t-p} + \varepsilon_t\\
-\text{where }B_0^{-1}u_t &= \varepsilon_t| Y_{t-1} \sim _{iid} ( 0, \Sigma)\\
-\Sigma &= B_0^{-1}B_0^{-1'}
+Y &= XA + U\\
+U| X &\sim _{iid} MN_{T\times N}( 0, \Sigma, \Omega)\\
 \end{align}
-$$
+$$ For each draw reduced form posteriors, the candidate contemporeneous effects matrix is derived as: $$\tilde{B}=\tilde{B}^{-1}_0=\text{chol}(\Sigma)$$
 
-The reduced form of the model, where $B_0^{-1}$ is the matrix of contemporaneous effects between variables, allows for model estimation. However, the identification strategy for $B_0^{-1}$ is yet to be finalized, but will likely involve either exclusion restrictions or sign restrictions.
+Contemporaneous effects matrix $B$ is identified by searching for an appopriate rotation matrix $Q$ such that prescribed sign restrictions hold:
 
-The study will utilize impulse response functions (IRF) and forecast error variance decomposition (FEVD) methods to measure the effects of the tax policy, public investment, and government social transfers on the unemployment rate and GDP output. IRFs are used to measure the dynamic, marginal effects of orthogonal shocks from the three fiscal levers of interest while FEVD intends to account for the share of explained variability in the outcome variables that can be attributed to explanatory variables of interest.
+$$B = Q\tilde{B}$$ 
 
+such that:
 
+$$R_nf(\tilde{B}_0,\tilde{B}_+)e_n\geq0$$
+$$f(\tilde{B}_0,\tilde{B}_+)=\Phi_0=\tilde{B}^{-1}_0$$
 
-```{r Basic model estimation function}
+### Estimation with artificial data
+To check the validity of the algorithms, two independent bi-variate random walk with drift processes were generated to simulate unit-root non-stationary macroeconoic variables.
+```{r RW sample}
+set.seed(1)
+y1 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=1,sd=1)
+y2 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=1,sd=1)
+y <- cbind(y1,y2)
+
+par(mfrow=c(1,2))
+plot(y=y1, x = 1:1001, type = "l", col = "turquoise4", 
+     lwd = 1.5, ylab = "", xlab = "", main = "RW with drift 1")
+plot(y=y2, x = 1:1001, type = "l", col = "plum4", 
+     lwd = 1.5, ylab = "",xlab = "", main = "RW with drift 2")
+```
+
+The estimation procedure for the basic model is implemented in `R` by the following function, `sign.basic`:
+```{r Basic model estimation function, echo = TRUE}
 # data = input data should be quarterly
 # p = lags
 # S = number of posterior draws
 # sign restritions = Nx1 diagonal of R matrix
 # k1 = kappa1
 # k2 = kappa2, higher value, less shrinkage, more weight on prior
+# shockvar = variable being shocked
 # start date = start date of Y matrix
 sign.basic <- function(data, p, S,  sign.restrictions,
                            k1=0.04, k2=100, start_date = c(1991,1), shockvar){
@@ -346,8 +463,6 @@ sign.basic <- function(data, p, S,  sign.restrictions,
   for (i in 1:p){
     X     = cbind(X,data[(p+1):nrow(data)-i,])
   }
-  
-  #t0          = proc.time() # read processor time
   
   # Calculate MLE
   ############################################################
@@ -368,7 +483,7 @@ sign.basic <- function(data, p, S,  sign.restrictions,
   S.prior     = diag(diag(Sigma.hat))
   nu.prior    = N+1
   
-  # matrix normal-inverse Wishart posterior parameters
+  # Matrix normal-inverse Wishart posterior parameters
   ############################################################
   V.bar.inv   = t(X)%*%X + diag(1/diag(V.prior))
   V.bar       = solve(V.bar.inv)
@@ -377,18 +492,18 @@ sign.basic <- function(data, p, S,  sign.restrictions,
   S.bar       = S.prior + t(Y)%*%Y + t(A.prior)%*%diag(1/diag(V.prior))%*%A.prior - t(A.bar)%*%V.bar.inv%*%A.bar
   S.bar.inv   = solve(S.bar)
   
-  # posterior draws 
+  # Posterior draws 
   ############################################################
-  ## draw from RF posterior
-  # draw Sigma from inverse wishart
+  # Draws from RF posterior
+  # Draw Sigma from inverse wishart
   Sigma.posterior   = rWishart(S, df=nu.bar, Sigma=S.bar.inv)
   Sigma.posterior   = apply(Sigma.posterior,3,solve)
   Sigma.posterior   = array(Sigma.posterior,c(N,N,S))
   
-  # draw A from matrix-variate normal
+  # Draw A from matrix-variate normal
   A.posterior       = array(rnorm(prod(c(dim(A.bar),S))),c(dim(A.bar),S))
   
-  ## draw from SF posterior
+  ## Draw from SF posterior
   B0.posterior       = array(NA,c(N,N,S))
   Bplus.posterior       = array(NA,c(N,K,S))
   L                 = t(chol(V.bar))
@@ -400,29 +515,25 @@ sign.basic <- function(data, p, S,  sign.restrictions,
     # Draw Bplus
     Bplus.posterior[,,s] = B0.posterior[,,s]%*%t(A.posterior[,,s])
   }
-  # round(apply(A.posterior,1:2,mean),4)
-  # round(apply(B.posterior,1:2,mean),4)
-  
-  # Identification via sign restrictions on theta0
+
+  # Identification via sign restrictions 
   ############################################################
-  # should have N elements
-  #sign.restrictions = c()
   
-  # generate corresponding R matrix
+  # Generate corresponding R matrix
   R1 = diag(sign.restrictions)
   
-  # storage matrices for Q identified estimates
+  # Storage matrices for Q identified estimates
   i.vec <- c()
   Q.iden   = array(NA,c(N,N,S))
   B0.iden = array(NA,c(N,N,S))
   B1.iden = array(NA,c(N,K,S))
   A.iden = array (NA,c(K,N,S))
   
-  pb = txtProgressBar(min = 0, max = S, initial = 0) 
+  pb = txtProgressBar(min = 0, max = 100, initial = 0) 
 
   for (s in 1:S){
     
-    setTxtProgressBar(pb,s)
+    setTxtProgressBar(pb,100*s/S)
     #cat(". iteration: ", s, "\n")
     
     # pick-up a B0 from S
@@ -468,33 +579,28 @@ sign.basic <- function(data, p, S,  sign.restrictions,
 
 ```
 
-```{r RW sample}
+Applying the `sign.basic` function on the artificial returns the following matrices as estimates for the posterior means of $A$ and $\Sigma$. These results are appropriate given the independent bivariate random walk with drift proceses:
+
+```{r}
 set.seed(1)
-y1 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=1,sd=2)
-y2 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=1,sd=2)
-# y1 <- cumsum(rnorm(1000, 0, sd=1))
-# y2 <- cumsum(rnorm(1000, 0, sd=1)) 
-y <- cbind(y1,y2)
+RW_estimation <-  sign.basic(data=y, p=1, S=10000, c(0,1), k1 = 1, k2 = 100, shockvar = 1)
 
-par(mfrow=c(1,1))
-plot.ts(y)
-#plot(y[,3], type = "l", col = "darkorchid3")
+A.mean_tab <- as.data.frame(round(RW_estimation$A.mean,0))
+colnames(A.mean_tab) <- c("RW1", "RW2")
 
+Sigma.mean_tab <- as.data.frame(round(apply(RW_estimation$Sigma.posterior,1:2,mean),0))
+colnames(Sigma.mean_tab) <- c("RW1", "RW2")
 
-
-RW_res <-  sign.basic(data=y, p=1, S=1000, c(1,-1), k1 = 0.04, k2 = 100, shockvar = 1)
-round(RW_res$A.mean,1)
-
+paged_table(A.mean_tab)
+paged_table(Sigma.mean_tab)
 ```
+Estimating the extended model involved designing three functions in `R`:
+1.  `v.posterior.mode` takes in the data and numerically computes for the posterior mode of $\theta$, i.e., COVID volatility parameters; 
+2.  `mh.mcmc` takes in data, the posterior mode, and inverse Hessian from `v.posterior.mode` to run the above-mentioned Metropolis MCMC algorithm for a specified number of iterations; and
+3.  `sign.extension` takes in data and draws of $\theta$ from `mh.mcmc` to return the posterior draws for the extended model.
 
 
-```{r Basic model IRF and FEVD}
-
-```
-
-
-```{r Posterior maximizing function}
-
+```{r COVID parameters posterior maximization, echo = TRUE}
 v.posterior.mode <- function(data, p=4, k1=1, k2=100, start_date=c(1991,1)){
 
   v.neglogPost <- function(theta){
@@ -511,7 +617,7 @@ v.posterior.mode <- function(data, p=4, k1=1, k2=100, start_date=c(1991,1)){
       X     = cbind(X,data[(p+1):nrow(data)-i,])
     }
     
-      # Calculate MLE for prior 
+    # Calculate MLE for prior 
     ############################################################
     A.hat       = solve(t(X)%*%X)%*%t(X)%*%Y
     Sigma.hat   = t(Y-X%*%A.hat)%*%(Y-X%*%A.hat)/nrow(Y)
@@ -541,34 +647,32 @@ v.posterior.mode <- function(data, p=4, k1=1, k2=100, start_date=c(1991,1)){
     X.tilde <- diag(1/V)%*%X
     A.tilde.hat <- solve((t(X.tilde)%*%X.tilde+solve(V.prior)))%*%(t(X.tilde)%*%Y.tilde+solve(V.prior)%*%A.prior)
     epsilon.tilde <-Y.tilde - X.tilde%*%A.tilde.hat
-        
+    
+    # Log-likelihood      
     logL <- log(prod(V^(-N)))+(-N/2)*log(det(t(X.tilde)%*%X.tilde+solve(V.prior)))+
             (-(T-p+nu.prior)/2)*log(det(S.prior +t(epsilon.tilde)%*%epsilon.tilde + 
             t(A.tilde.hat-A.prior)%*%solve(V.prior)%*%(A.tilde.hat-A.prior)))
-
-    # "Computationally stable" equivalent
-    # logL <- log(prod(V^(-N)))+(-N/2)*log(det(t(chol(V.prior))%*%t(X.tilde)%*%X.tilde%*%chol(V.prior)+diag(K)))+
-    #           (-(T-p+nu.prior)/2)*log(det(diag(N) + t(chol(S.prior))%*%(t(epsilon.tilde)%*%epsilon.tilde +
-    #           t(A.tilde.hat-A.prior)%*%solve(V.prior)%*%(A.tilde.hat-A.prior))%*%chol(S.prior)))      
-    #           
-
+    
+    # Pareto(1,1) and Beta(3,1.5) priors 
     pareto.a=1
     pareto.b=1
     beta.a=3
     beta.b=1.5
     beta.cons <- 1/beta(beta.a,beta.b)
     
+    # Log-prior
     logP <- log((pareto.a*pareto.b^pareto.a)/(theta[1]^(pareto.a+1))*
     (pareto.a*pareto.b^pareto.a)/(theta[2]^(pareto.a+1))*
     (pareto.a*pareto.b^pareto.a)/(theta[3]^(pareto.a+1))*
     beta.cons*theta[4]^(beta.a-1)*(1-theta[4])^(beta.b-1))
     
+    # negative log-posterior
     neglogPost <- -(logL+logP)
     
     return(neglogPost)
   }
    
-  
+  # numerically minimize the negative log-likelihood
   post.maximizer <- optim(par=c(50, 50, 50, 0.5), fn=v.neglogPost, method="L-BFGS-B", 
                           lower=c(1, 1, 1, 0.0001),
                           upper=c(100,100,100,0.99999), hessian = TRUE)
@@ -576,13 +680,7 @@ v.posterior.mode <- function(data, p=4, k1=1, k2=100, start_date=c(1991,1)){
   return(list(maximizer=post.maximizer$par, hessian=post.maximizer$hessian))
 
 }
-
-
-print(v.posterior.mode(y, p = 1))
-print(v.posterior.mode(lnY.df_num, p = 4))
-
 ```
-
 
 ```{r Metropolis-Hastings function}
 mh.mcmc <- function(data, p=1, S.mh = 1000, c, W = diag(4), theta.init,
@@ -644,7 +742,6 @@ mh.mcmc <- function(data, p=1, S.mh = 1000, c, W = diag(4), theta.init,
     }
 
     # Covid volatility likelihood kernel
-    #v.lik <- function(V, N) det(diag(V^2))^(-N/2)
     v.logL <- function(V){
       Y.tilde <- diag(1/V)%*%Y
       X.tilde <- diag(1/V)%*%X
@@ -655,13 +752,6 @@ mh.mcmc <- function(data, p=1, S.mh = 1000, c, W = diag(4), theta.init,
               (-(T-p+nu.prior)/2)*log(det(S.prior +t(epsilon.tilde)%*%epsilon.tilde + 
               t(A.tilde.hat-A.prior)%*%solve(V.prior)%*%(A.tilde.hat-A.prior)))
 
-      # Computationally stable equivalent
-      # logL <- log(prod(V^(-N)))+
-      #         (-N/2)*log(det(t(chol(V.prior))%*%t(X.tilde)%*%X.tilde%*%chol(V.prior)+diag(K)))+
-      #         (-(T-p+nu.prior)/2)*
-      #   log(det(diag(N) + t(chol(S.prior))%*%(t(epsilon.tilde)%*%epsilon.tilde +
-      #                           t(A.tilde.hat-A.prior)%*%solve(V.prior)%*%(A.tilde.hat-A.prior))%*%chol(S.prior)))      
-      #         
       return(logL)
     }
   
@@ -673,7 +763,6 @@ mh.mcmc <- function(data, p=1, S.mh = 1000, c, W = diag(4), theta.init,
       (pareto.a*pareto.b^pareto.a)/(theta[2]^(pareto.a+1))*
       (pareto.a*pareto.b^pareto.a)/(theta[3]^(pareto.a+1))*
        beta.cons*theta[4]^(beta.a-1)*(1-theta[4])^(beta.b-1))
-      #dnorm(theta[4],0,1)
       
       return(logP)
     }
@@ -685,12 +774,14 @@ mh.mcmc <- function(data, p=1, S.mh = 1000, c, W = diag(4), theta.init,
     theta_new <- mvrnorm(1, theta_old, c*W)
     V.new <- c(v_ones, covid.vec(theta_new))
     
-    # calculate posteriors 
+    # Calculate posteriors 
     v.logpost_old <- v.logL(V.old)+v.logP(theta_old)
     v.logpost_new <- v.logL(V.new)+v.logP(theta_new)
     
+    # Posterior ratio
     post.ratio <- exp(v.logpost_new-v.logpost_old)
-  
+    
+    # Acceptance/rejection alpha
     alpha <- min(1, post.ratio)
     
     u_star <- runif(1)
@@ -704,58 +795,12 @@ mh.mcmc <- function(data, p=1, S.mh = 1000, c, W = diag(4), theta.init,
   
   colnames(Theta) <- c("v0", "v1" , "v2", "rho")
 
-  #plot.ts(Theta)
-  #1 - rejectionRate(as.mcmc(Theta[,1]))
-  #Theta[nrow(Theta),]
   re <- list(Theta=Theta, 
              AcceptRate = 1 - rejectionRate(as.mcmc(Theta[,1])))
   return(re)
 }
 
 ```
-
-```{r RW MCMC runs}
-RM.posterior.mode <- v.posterior.mode(y, p = 1)$maximizer
-RM.posterior.Hessian <- v.posterior.mode(y, p = 1)$hessian
-
-set.seed(1)
-RM.theta <- mh.mcmc(y, c = 0.00001, W = diag(4), theta.init = RM.posterior.mode, S.mh = 10000)
-plot.ts(mh1$Theta)
-mh1$AcceptRate
-
-
-```
-
-```{r Data MCMC runs}
-
-theta.ext.post.mode <- v.posterior.mode(lnY.df_num, p = 4, k1 = 1, k2 = 100)$maximizer
-theta.ext.post.Hessian <- v.posterior.mode(lnY.df_num, p = 4, k1 = 1, k2 = 100)$hessian
-
-
-set.seed(1)
-mhx <-mh.mcmc(lnY.df_num, p=4, c=0.000228, W = solve(theta.ext.post.Hessian), 
-                theta.init = theta.ext.post.mode, k1 = 1, S.mh = 20000)
-plot.ts(mhx$Theta)
-
-set.seed(1)
-mhx.2 <-mh.mcmc(lnY.df_num, p=4, c = 0.001, W = cov(mhx$Theta), theta.init = mhx$Theta[nrow(mhx$Theta),], 
-                k1 = 1, S.mh = 10000)
-plot.ts(mhx.2$Theta)
-mhx.2$AcceptRate
-
-set.seed(1)
-mhx.3 <-mh.mcmc(lnY.df_num, p=4, c = 0.0025, W = cov(mhx.2$Theta), theta.init = mhx.2$Theta[nrow(mhx.2$Theta),], k1=1,S.mh = 10000)
-plot.ts(mhx.3$Theta)
-mhx.3$AcceptRate
-
-
-set.seed(1)
-mhx.4 <-mh.mcmc(lnY.df_num, p=4, c = 0.001, W = cov(mhx.3$Theta), theta.init = mhx.3$Theta[nrow(mhx.3$Theta),], k1=1, S.mh = 10000)
-plot.ts(mhx.4$Theta)
-mhx.4$AcceptRate
-
-```
-
 
 ```{r Extended model}
 sign.extension <- function(data, p=4, S=100,  sign.restrictions = c(0, 0, 1, 1, 1, -1, 1, -1, 1),
@@ -862,7 +907,6 @@ sign.extension <- function(data, p=4, S=100,  sign.restrictions = c(0, 0, 1, 1, 
   for (s in 1:S){
     
     setTxtProgressBar(pb,s)
-    #cat(". iteration: ", s, "\n")
     
     # pick-up a B0 from S
     B0.tilde <- B0.posterior[,,s]
@@ -907,7 +951,70 @@ sign.extension <- function(data, p=4, S=100,  sign.restrictions = c(0, 0, 1, 1, 
 
 ```
 
-```{r Basic model plots}
+Applying `v.posterior.mode` on the artifcial data yielded a mode of $\theta^{(s=1)}=(1,1,1,0.8)$ which is appropriate given that there is no COVID volatility in generated random walk series. However, the numerical optimization yielded a non-positive definite Hessian which cannot be used to initialize the Metropolis MCMC. As such, $W$ was instead set to an identity matrix. 
+
+Running `mh.mcmc` on the artificial data for 15000 iterations yields the following draws. Unfortunately, the MCMC draws failed to converge into a stationary series within these number of iterations. 
+
+```{r RW Metropolis MCMC}
+set.seed(1)
+RW.post.mode <- v.posterior.mode(y, p = 1)
+RW.mcmc <- mh.mcmc(y, c = 0.00001, W = diag(4), 
+                   theta.init = RW.post.mode$maximizer, S.mh = 15000)
+plot.ts(RW.mcmc$Theta, main = "Metropolis MCMC draws")
+print(RW.post.mode$maximizer) 
+print(RW.post.mode$hessian) 
+#RM.theta$AcceptRate
+```
+
+Nonetheless, using these draws in the estimation procudure implemented by `sign.extension` still yields correct estimates for $A$ and $\Sigma$, as seen in the results below. Note however, memory capacity of the computer used only allowed for 2000 draws.
+
+```{r}
+RW_estimation_ext <-  sign.extension(y, p = 1, S = 2000, 
+                                     sign.restrictions=c(0, 0), k1 = 1, 
+                                     Theta.mh = RW.mcmc$Theta[13001:15000,], shockvar = 1)
+
+A.mean_tab <- as.data.frame(round(RW_estimation_ext$A.mean,0))
+colnames(A.mean_tab) <- c("RW1", "RW2")
+
+Sigma.mean_tab <- as.data.frame(round(apply(RW_estimation_ext$Sigma.posterior,1:2,mean),0))
+colnames(Sigma.mean_tab) <- c("RW1", "RW2")
+
+paged_table(A.mean_tab)
+paged_table(Sigma.mean_tab)
+```
+
+
+```{r Data MCMC runs, eval = F, include = F}
+
+theta.ext.post.mode <- v.posterior.mode(lnY.df_num, p = 4, k1 = 1, k2 = 100)$maximizer
+theta.ext.post.Hessian <- v.posterior.mode(lnY.df_num, p = 4, k1 = 1, k2 = 100)$hessian
+
+
+set.seed(1)
+mhx <-mh.mcmc(lnY.df_num, p=4, c=0.000228, W = solve(theta.ext.post.Hessian), 
+                theta.init = theta.ext.post.mode, k1 = 1, S.mh = 20000)
+plot.ts(mhx$Theta)
+
+set.seed(1)
+mhx.2 <-mh.mcmc(lnY.df_num, p=4, c = 0.001, W = cov(mhx$Theta), theta.init = mhx$Theta[nrow(mhx$Theta),], 
+                k1 = 1, S.mh = 10000)
+plot.ts(mhx.2$Theta)
+mhx.2$AcceptRate
+
+set.seed(1)
+mhx.3 <-mh.mcmc(lnY.df_num, p=4, c = 0.001, W = cov(mhx.2$Theta), theta.init = mhx.2$Theta[nrow(mhx.2$Theta),], k1=1,S.mh = 10000)
+plot.ts(mhx.3$Theta)
+mhx.3$AcceptRate
+
+
+set.seed(1)
+mhx.4 <-mh.mcmc(lnY.df_num, p=4, c = 0.001, W = cov(mhx.3$Theta), theta.init = mhx.3$Theta[nrow(mhx.3$Theta),], k1=1, S.mh = 10000)
+plot.ts(mhx.4$Theta)
+mhx.4$AcceptRate
+
+```
+
+```{r Basic model plots, eval = F, include = F}
 #expansionary fiscal policy, accommodated by monetary policy
 basic.model <- sign.basic(lnY.df_num,p=4,S=10000,c(0, 0, 1, 1, 1, 1, 1, -1, 1), k1 = 1, shockvar=5)
 
@@ -1051,7 +1158,7 @@ dev.off()
 
 ```
 
-```{r Extended model plots}
+```{r Extended model plots, eval = F, include = F}
 # mhx.4$Theta[5001:10000,]
 # mhx.4$Theta[9001:10000,] #strictly contemporenous, dontrstr
 extended.model <- sign.extension(lnY.df_num, p = 4, S = 10000, sign.restrictions=c(0, 0, 1, 1, 1, 1, 1, -1, 1), k1 = 1, 
@@ -1183,6 +1290,7 @@ dev.off()
 
 
 ```
+
 ## References
 
 Abubakar, Attahir B. (2016): Dynamic effects of fiscal policy on output and unemployment in Nigeria: An econometric investigation, CBN Journal of Applied Statistics, ISSN 2476-8472, The Central Bank of Nigeria, Abuja, Vol. 07, Iss. 2, pp. 101-122
