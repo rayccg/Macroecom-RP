@@ -406,7 +406,7 @@ $$B = Q\tilde{B}$$
 
 such that:
 
-$$R_nf(\tilde{B}_0,\tilde{B}_+)e_n\geq0$$ $$f(\tilde{B}_0,\tilde{B}_+)=\Phi_0=\tilde{B}^{-1}_0$$
+$$R_nf(\tilde{B}_0,\tilde{B}_+)e_n\geq0$$ $$f(\tilde{B}_0,\tilde{B}_+)=\Theta_0=\tilde{B}^{-1}_0$$
 
 ### Estimation with artificial data
 
@@ -428,6 +428,9 @@ plot(y=y2, x = 1:1001, type = "l", col = "plum4",
 The estimation procedure for the basic model is implemented in `R` by the following function, `sign.basic`:
 
 ```{r Basic model estimation function, echo = TRUE}
+#| code-fold: true
+#| code-summary: "Show code"
+
 # data = input data should be quarterly
 # p = lags
 # S = number of posterior draws
@@ -437,7 +440,7 @@ The estimation procedure for the basic model is implemented in `R` by the follow
 # shockvar = variable being shocked
 # start date = start date of Y matrix
 sign.basic <- function(data, p, S,  sign.restrictions,
-                           k1=0.04, k2=100, start_date = c(1991,1), shockvar){
+                           k1=0.04, k2=100, start_date = c(1991,1), shockvar=5){
   # Define Y and X matrices
   ############################################################
   # N = no. of variables
@@ -590,6 +593,8 @@ Estimating the extended model involved designing three functions in `R`:
 1.  `v.posterior.mode` takes in the data and numerically computes for the posterior mode of $\theta$, i.e., COVID volatility parameters;
 
 ```{r COVID parameters posterior maximization, echo = TRUE}
+#| code-fold: true
+#| code-summary: "Show code"
 v.posterior.mode <- function(data, p=4, k1=1, k2=100, start_date=c(1991,1)){
 
   v.neglogPost <- function(theta){
@@ -674,6 +679,8 @@ v.posterior.mode <- function(data, p=4, k1=1, k2=100, start_date=c(1991,1)){
 2.  `mh.mcmc` takes in data, the posterior mode of $\theta$, and the inverse Hessian from `v.posterior.mode` to run the above-mentioned Metropolis MCMC algorithm for a specified number of iterations; and
 
 ```{r Metropolis-Hastings function, echo = TRUE}
+#| code-fold: true
+#| code-summary: "Show code"
 mh.mcmc <- function(data, p=1, S.mh = 1000, c, W = diag(4), theta.init,
                     k1 = 1, k2 = 100, start_date = c(1991,1)){
  # N = no. of variables
@@ -796,6 +803,8 @@ mh.mcmc <- function(data, p=1, S.mh = 1000, c, W = diag(4), theta.init,
 3.  `sign.extension` takes in data and draws of $\theta$ from `mh.mcmc` to return the posterior draws for the extended model.
 
 ```{r Extended model, echo = TRUE}
+#| code-fold: true
+#| code-summary: "Show code"
 sign.extension <- function(data, p=4, S=100,  sign.restrictions = c(0, 0, 1, 1, 1, -1, 1, -1, 1),
                            k1=1, k2=100, shockvar = 5, start_date = c(1991,1), Theta.mh){
 
@@ -963,7 +972,9 @@ Nonetheless, using these draws in the estimation procedure implemented by `sign.
 
 (Note: 10,000 draws is possible for estimation using the actual macroeconomic data given the much fewer observations)
 
-```{r}
+```{r RW extension, echo = F}
+#| code-fold: true
+#| code-summary: "Show code"
 RW_estimation_ext <-  sign.extension(y, p = 1, S = 2000, 
                                      sign.restrictions=c(0, 0), k1 = 1, 
                                      Theta.mh = RW.mcmc$Theta[13001:15000,], shockvar = 1)
@@ -978,311 +989,169 @@ paged_table(A.mean_tab)
 paged_table(Sigma.mean_tab)
 ```
 
-```{r Data MCMC runs, eval = F, include = F}
+## Empirical investigation
 
-theta.ext.post.mode <- v.posterior.mode(lnY.df_num, p = 4, k1 = 1, k2 = 100)$maximizer
-theta.ext.post.Hessian <- v.posterior.mode(lnY.df_num, p = 4, k1 = 1, k2 = 100)$hessian
+This section investigates the effect of an exogenous shock to public investment, represented by the public gross fixed capital formation (GFCF, i.e., the 5th variable in the $Y$). These will be measured through impulse response functions (IRFs) which capture the dynamic causal effects of an exogenous shock $u_t$ on the variables in the system.
 
+Given the $VAR(1)$ representation of the model: $$Y_t = \textbf{A}Y_{t-1} + E_t$$ $$=E_t+\textbf{A}E_{t-1}+\textbf{A}^2E_{t-2}+...$$ Transforming back to a $VAR(p)$ representation using the $J$ matrix:
 
-set.seed(1)
-mhx <-mh.mcmc(lnY.df_num, p=4, c=0.000228, W = solve(theta.ext.post.Hessian), 
-                theta.init = theta.ext.post.mode, k1 = 1, S.mh = 20000)
-plot.ts(mhx$Theta)
+$$J=\big[I_n\quad 0_{N\times N(p-1)}\big]$$
 
-set.seed(1)
-mhx.2 <-mh.mcmc(lnY.df_num, p=4, c = 0.001, W = cov(mhx$Theta), theta.init = mhx$Theta[nrow(mhx$Theta),], 
-                k1 = 1, S.mh = 10000)
-plot.ts(mhx.2$Theta)
-mhx.2$AcceptRate
+$$y_t =JY_t=JE_t+J\textbf{A}J'JE_{t-1}+J\textbf{A}^2J'JE_{t-2}+...$$ $$=\varepsilon_t+J\textbf{A}J'\varepsilon_{t-1}+J\textbf{A}^2J'\varepsilon_{t-2}+...$$ Substituting $\varepsilon_t=Bu_t$:
 
-set.seed(1)
-mhx.3 <-mh.mcmc(lnY.df_num, p=4, c = 0.001, W = cov(mhx.2$Theta), theta.init = mhx.2$Theta[nrow(mhx.2$Theta),], k1=1,S.mh = 10000)
-plot.ts(mhx.3$Theta)
-mhx.3$AcceptRate
+$$y_t =Bu_t+J\textbf{A}J'Bu_{t-1}+J\textbf{A}^2J'Bu_{t-2}+...$$ $$=\Theta_0u_t+\Theta_1u_{t-1}+\Theta_2u_{t-2}+...$$Where matrix $\frac{\partial y_{t+i}}{\partial u_t}=\Theta_i$ is the IRF which characterizes the effect of the variables $y_t$, $i$ periods from impact.
 
+The above derivations are implemented in the function `irf.plot` below, which takes in draws of $A$ and $B_0$ and does the necessary transformations estimate and plot the impluse response functions for a shock on a specified variable.
 
-set.seed(1)
-mhx.4 <-mh.mcmc(lnY.df_num, p=4, c = 0.001, W = cov(mhx.3$Theta), theta.init = mhx.3$Theta[nrow(mhx.3$Theta),], k1=1, S.mh = 10000)
-plot.ts(mhx.4$Theta)
-mhx.4$AcceptRate
+```{r IRF plot function, echo = TRUE}
+#| code-fold: true
+#| code-summary: "Show code"
+irf.plot <- function(A.posterior, B0.posterior, shock.var, p=4, h = 12,
+                     varnames = varname_vec){
+  # Define colors
+  ############################################################
+  mcxs1  = "#05386B"
+  mcxs2  = "#379683"
+  mcxs3  = "#5CDB95"
+  mcxs4  = "#8EE4AF"
+  mcxs5  = "#EDF5E1"
+  purple = "#b02442"
+  
+  mcxs1.rgb   = col2rgb(mcxs1)
+  mcxs1.shade1= rgb(mcxs1.rgb[1],mcxs1.rgb[2],mcxs1.rgb[3], alpha=120, maxColorValue=255)
+  mcxs2.rgb   = col2rgb(mcxs2)
+  mcxs2.shade1= rgb(mcxs2.rgb[1],mcxs2.rgb[2],mcxs2.rgb[3], alpha=120, maxColorValue=255)
+  
+  # Impulse response functions
+  ############################################################
+  N <- dim(A.posterior)[2]
+  S <- dim(A.posterior)[3]
+  
+  # transform B0 matrices to B
+  B.posterior <- array(NA, c(N,N,S))
+  for (s in 1:S){
+  B.posterior[,,s] <- solve(B0.posterior[,,s])
+  }
+  
+  IRF.posterior     = array(NA,c(N,N,h+1,S))
+  IRF.inf.posterior = array(NA,c(N,N,S))
+  J                 = cbind(diag(N),matrix(0,N,N*(p-1)))
+  
+  pb = txtProgressBar(min = 0, max = S, initial = 0) 
+  for (s in 1:S){
+    setTxtProgressBar(pb,s)
+    # define A matrix in VAR(1) representation
+    A.bold          = rbind(t(A.posterior[2:(1+N*p),,s]),cbind(diag(N*(p-1)),matrix(0,N*(p-1),N)))
+    IRF.inf.posterior[,,s]          = J %*% solve(diag(N*p)-A.bold) %*% t(J) %*% B.posterior[,,s]
+    A.bold.power    = A.bold
+    for (i in 1:(h+1)){
+      if (i==1){
+        IRF.posterior[,,i,s]        = B.posterior[,,s]
+      } else {
+        IRF.posterior[,,i,s]        = J %*% A.bold.power %*% t(J) %*% B.posterior[,,s]
+        A.bold.power                = A.bold.power %*% A.bold
+      }
+    }
+  }
+  
+  # save IRFs
+  save(IRF.posterior,IRF.inf.posterior, file="irf-k1.RData")
+
+  # IRF plots GFCF
+  ############################################################
+  IRFs.k1           = apply(IRF.posterior[,shock.var,,],1:2,mean)
+  IRFs.inf.k1       = apply(IRF.inf.posterior[,shock.var,],1,mean)
+  rownames(IRFs.k1) = varnames
+  
+  IRFs.k1.hdi    = apply(IRF.posterior[,shock.var,,],1:2,hdi, credMass=0.68)
+  hh          = 1:(h+1)
+  
+  par(mfrow=c(3,3), mar=c(3,3,2,2),cex.axis=1.5, cex.lab=1.5)
+  for (n in 1:N){
+    ylims     = range(IRFs.k1[n,hh],IRFs.k1.hdi[,n,hh])
+    plot(hh,IRFs.k1[n,hh], type="l", ylim=ylims, axes=FALSE, xlab="3 years",
+         main=rownames(IRFs.k1)[n])
+    abline(h = 0, col = "firebrick")
+    axis(2,c(ylims[1],0,ylims[2]),round(c(ylims[1],0,ylims[2]),3))
+    polygon(c(hh,(h+1):1), c(IRFs.k1.hdi[1,n,hh],IRFs.k1.hdi[2,n,(h+1):1]),
+            col=mcxs1.shade1,border=mcxs1.shade1)
+    lines(hh, IRFs.k1[n,hh],lwd=2,col=mcxs1)
+  }
+}
 
 ```
 
-```{r Basic model plots, eval = F, include = F}
+### Basic model estimation and IRFs
+
+The basic model is used to investigate the dynamic effects of shock to public investment on the economic system. Identification proceeds via the following sign restrictions on $\Theta_0$:
+
+$$f(B_0,B_+)=\Theta_0=B=\begin{bmatrix}
+* & * & * & * & * & * & * & * & *\\
+* & * & * & * & * & * & * & * & *\\
++ & * & * & * & * & * & * & * & *\\
++ & * & * & * & * & * & * & * & *\\
++ & * & * & * & * & * & * & * & *\\
++ & * & * & * & * & * & * & * & *\\
++ & * & * & * & * & * & * & * & *\\
+- & * & * & * & * & * & * & * & *\\
++ & * & * & * & * & * & * & * & *\\
+\end{bmatrix}$$
+
+which corresponds to the following $\textbf{R}_5$ matrix: $$\textbf{R}_5=\begin{bmatrix}
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0\\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & -1 & 0\\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1\\
+\end{bmatrix}$$
+
+$$\textbf{R}_5f(B_0,B_+)e_5\geq0$$
+
+Where the identifying fiscal policy impulse vector is:
+$$\text{diag}(\textbf{R}_5)=[0\quad0\quad1\quad1\quad1\quad1\quad1\quad-1\quad1]$$
+$\text{diag}(\textbf{R}_5)$ represents an exogenous shock to public investment to which other fiscal variables respond positively and are accommodated by monetary policy. This scenario is applicable, for example during situations where the Australian economy is experiencing low inflation but sluggish growth which the government may want to stimulate in the short-to-medium term. Variables for unemployment and output, the first and second variables in $y_t$, respectively, are left unrestricted as these are the variables whose responses are of interest.
+
+```{r Basic model estimation, echo = TRUE}
+#| code-fold: true
+#| code-summary: "Show code"
+
+## interpretations ignoring recommendations of pagan and fry 2005. Not in terms of probability. 68% of IRF at a horizon are w/in the band. fraction of orthinognal IRFs. not stat significance. where are most of the orthogonal IRFs are. 
+
 #expansionary fiscal policy, accommodated by monetary policy
-basic.model <- sign.basic(lnY.df_num,p=4,S=10000,c(0, 0, 1, 1, 1, 1, 1, -1, 1), k1 = 1, shockvar=5)
+basic.model <- sign.basic(lnY.df_num,p=4, S=10000, c(0, 0, 1, 1, 1, 1, 1, -1, 1), k1 = 1, shockvar=5)
+irf.plot(A.posterior = basic.model$A.posterior, B0.posterior = basic.model$B0, shock.var = 5)
+```
 
-N <- dim(basic.model$A.posterior)[2]
-S <- dim(basic.model$A.posterior)[3]
-p <- 4
-h <- 12
+As seen in the above plots, an exogenous shock to public investment (i.e., government GFCF) at period $h=0$ is estimated to increase real GDP in subsequent periods, with the majority of estimated real GDP impulse responses at $h>0$ above the zero level. This expansion in output is accompanied by a decrease in unemployment. These results are consistent with the Keynesian economic theory that expansionary fiscal policy (through increased spending) increases output and employment. Note that these improvements to GDP and unemployment occur despite increases in tax revenue.
 
-A.posterior.basic <- basic.model$A.posterior
+### Extended model estimation and IRFs
 
-B0.posterior.basic <- basic.model$B0
+The same sign restrictions are used for identification in the extended model. Functions `v.posterior` and `mh.mcmc` are implemented to draw the COVID volatility vector $H$ based on the macroeconomic data. As seen in the plots below, the Metropolis MCMC also failed to converge to stationarity after 20,000 draws.
 
-B.posterior.basic <- array(NA, c(N,N,S))
-for (s in 1:S){
-  B.posterior.basic[,,s] <- solve(B0.posterior.basic[,,s])
-}
-
-# Define colors
-mcxs1  = "#05386B"
-mcxs2  = "#379683"
-mcxs3  = "#5CDB95"
-mcxs4  = "#8EE4AF"
-mcxs5  = "#EDF5E1"
-purple = "#b02442"
-
-mcxs1.rgb   = col2rgb(mcxs1)
-mcxs1.shade1= rgb(mcxs1.rgb[1],mcxs1.rgb[2],mcxs1.rgb[3], alpha=120, maxColorValue=255)
-mcxs2.rgb   = col2rgb(mcxs2)
-mcxs2.shade1= rgb(mcxs2.rgb[1],mcxs2.rgb[2],mcxs2.rgb[3], alpha=120, maxColorValue=255)
-
-
-# Impulse response functions
-# Forecast Error Variance Decomposition
-############################################################
-A.posterior <- A.posterior.basic
-B.posterior <- B.posterior.basic
-
-IRF.posterior     = array(NA,c(N,N,h+1,S))
-IRF.inf.posterior = array(NA,c(N,N,S))
-FEVD.posterior    = array(NA,c(N,N,h+1,S))
-J                 = cbind(diag(N),matrix(0,N,N*(p-1)))
-
-pb = txtProgressBar(min = 0, max = S, initial = 0) 
-for (s in 1:S){
-  setTxtProgressBar(pb,s)
-  A.bold          = rbind(t(A.posterior[2:(1+N*p),,s]),cbind(diag(N*(p-1)),matrix(0,N*(p-1),N)))
-  IRF.inf.posterior[,,s]          = J %*% solve(diag(N*p)-A.bold) %*% t(J) %*% B.posterior[,,s]
-  A.bold.power    = A.bold
-  for (i in 1:(h+1)){
-    if (i==1){
-      IRF.posterior[,,i,s]        = B.posterior[,,s]
-    } else {
-      IRF.posterior[,,i,s]        = J %*% A.bold.power %*% t(J) %*% B.posterior[,,s]
-      A.bold.power                = A.bold.power %*% A.bold
-    }
-    for (n in 1:N){
-      for (nn in 1:N){
-        FEVD.posterior[n,nn,i,s]  = sum(IRF.posterior[n,nn,1:i,s]^2)
-      }
-    }
-    FEVD.posterior[,,i,s]         = diag(1/apply(FEVD.posterior[,,i,s],1,sum))%*%FEVD.posterior[,,i,s]
-  }
-}
-FEVD.posterior    = 100*FEVD.posterior
-
-#t1          = proc.time()
-#(t1-t0)[3]/60 # Time of computations in minutes
-
-# save(IRF.posterior,IRF.inf.posterior, FEVD.posterior, file="irf-fevd-k002.RData")
-save(IRF.posterior,IRF.inf.posterior, FEVD.posterior, file="irf-fevd-k1.RData")
-
-
-load("irf-fevd-k1.RData")
-# IRF plots GFCF
-############################################################
-
-shock.var <- 5
-IRFs.k1           = apply(IRF.posterior[1:9,shock.var,,],1:2,mean)
-IRFs.inf.k1       = apply(IRF.inf.posterior[1:9,shock.var,],1,mean)
-rownames(IRFs.k1) = varname_vec
-
-IRFs.k1.hdi    = apply(IRF.posterior[1:9,shock.var,,],1:2,hdi, credMass=0.68)
-hh          = 1:(h+1)
-
-#pdf(file="irf-GFCF.pdf", height=9, width=12)
-par(mfrow=c(3,3), mar=c(3,3,2,2),cex.axis=1.5, cex.lab=1.5)
-for (n in 1:N){
-  ylims     = range(IRFs.k1[n,hh],IRFs.k1.hdi[,n,hh])
-  plot(hh,IRFs.k1[n,hh], type="l", ylim=ylims, axes=FALSE, xlab="3 years",
-       main=rownames(IRFs.k1)[n])
-  abline(h = 0, col = "firebrick")
-  if (n==N-1 | n==N){
-   # axis(1,c(1,2,5,9),c("","1 quarter","1 year","2 years"))
-  } else {
-    #axis(1,c(1,2,5,9),c("","","",""))
-  }
-  axis(2,c(ylims[1],0,ylims[2]),round(c(ylims[1],0,ylims[2]),3))
-  polygon(c(hh,(h+1):1), c(IRFs.k1.hdi[1,n,hh],IRFs.k1.hdi[2,n,(h+1):1]), col=mcxs1.shade1,border=mcxs1.shade1)
-  lines(hh, IRFs.k1[n,hh],lwd=2,col=mcxs1)
-}
-#dev.off()
-
-# Plots of FEVD of unemployment and rgdp
-############################################################
-load("irf-fevd-k1.RData")
-hh            = 1:(h+1)
-fevd.unemp  = apply(FEVD.posterior[1,,,],1:2,mean)
-fevd.unemp  = rbind(rep(0,h+1),apply(fevd.unemp,2,cumsum))
-
-fevd.rgdp     = apply(FEVD.posterior[2,,,],1:2,mean)
-fevd.rgdp     = rbind(rep(0,h+1),apply(fevd.rgdp,2,cumsum))
-
-colors <- brewer.pal(12, name = "Paired")
-
-# colors = c("deepskyblue1","deepskyblue2","deepskyblue","deepskyblue3","deepskyblue4","dodgerblue",
-#            "maroon1","maroon","maroon2","magenta","maroon3","maroon4")
-
-pdf(file="fevd-unemp.pdf", height=7, width=12)
-par(mar=rep(4,4),cex.axis=1, cex.lab=0.8)
-plot(hh,fevd.unemp[1,], type="n", ylim=c(0,100), axes=FALSE, xlab="", ylab="")
-#axis(1,hh,c("","1 quarter","","","1 year","","","","2 years"))
-axis(2,c(0,50,100),c("","FEVD[unemp]",""))
-for (n in 1:N){
-  polygon(c(hh,(h+1):1), c(fevd.unemp[n,hh],fevd.unemp[n+1,(h+1):1]), col=colors[n],border=colors[n])
-}
-axis(4, (0.5*(fevd.unemp[1:9,9]+fevd.unemp[2:10,9]))[c(3,8,10)], c("","",""))
-dev.off()
-
-
-pdf(file="fevd-rgdp.pdf", height=7, width=12)
-par(mar=rep(4,4),cex.axis=1, cex.lab=0.8)
-plot(hh,fevd.rgdp[1,], type="n", ylim=c(0,100), axes=FALSE, xlab="", ylab="")
-#axis(1,hh,c("","1 quarter","","","1 year","","","","2 years"))
-axis(2,c(0,50,100),c("","FEVD[rgdp]",""))
-for (n in 1:N){
-  polygon(c(hh,(h+1):1), c(fevd.rgdp[n,hh],fevd.rgdp[n+1,(h+1):1]), col=colors[n],border=colors[n])
-}
-axis(4, (0.5*(fevd.rgdp[1:9,9]+fevd.rgdp[2:10,9]))[c(3,10)], c("",""))
-dev.off()
-
+```{r Extended model MCMC, echo = TRUE}
+#| code-fold: true
+#| code-summary: "Show code"
+extension.post.mode <- v.posterior.mode(lnY.df_num, p = 4, k1 = 1, k2 = 100)
+set.seed(1)
+extension.mcmc <-mh.mcmc(lnY.df_num, p=4, c=0.000228, W = solve(extension.post.mode$hessian), 
+                theta.init = extension.post.mode$maximizer, k1 = 1, S.mh = 20000)
+plot.ts(extension.mcmc$Theta, main = "Metropolis MCMC draws")
 
 ```
 
-```{r Extended model plots, eval = F, include = F}
-# mhx.4$Theta[5001:10000,]
-# mhx.4$Theta[9001:10000,] #strictly contemporenous, dontrstr
+The resulting IRF plots from the extended model mimic the basic model results where an exogenous shock to GFCF results in higher output and lower unemployment rates. However, the bands surrounding the mean line of the IRFs have become slightly tighter, as accounting for COVID-induced conditional heteroskedasticity effectively down-weights the heightened volatility of observations during the pandemic.
+
+```{r Extended model plots, echo = T}
+#| code-fold: true
+#| code-summary: "Show code"
 extended.model <- sign.extension(lnY.df_num, p = 4, S = 10000, sign.restrictions=c(0, 0, 1, 1, 1, 1, 1, -1, 1), k1 = 1, 
-                                 Theta.mh = mhx.4$Theta)
+                                 Theta.mh = extension.mcmc$Theta[10001:20000,])
 
-N <- dim(extended.model$A.posterior)[2]
-S <- dim(extended.model$A.posterior)[3]
-p <- 4
-h <- 12
-
-
-A.posterior.extended <- extended.model$A.posterior
-B0.posterior.extended <- extended.model$B0
-
-B.posterior.extended <- array(NA, c(N,N,S))
-for (s in 1:S){
-  B.posterior.extended[,,s] <- solve(B0.posterior.extended[,,s])
-}
-
-# Impulse response functions
-# Forecast Error Variance Decomposition
-############################################################
-A.posterior <- A.posterior.extended 
-B.posterior <- B.posterior.extended
-
-IRF.posterior     = array(NA,c(N,N,h+1,S))
-IRF.inf.posterior = array(NA,c(N,N,S))
-FEVD.posterior    = array(NA,c(N,N,h+1,S))
-J                 = cbind(diag(N),matrix(0,N,N*(p-1)))
-
-#pb = txtProgressBar(min = 0, max = S, initial = 0) 
-for (s in 1:S){
-  #setTxtProgressBar(pb,s)
-  A.bold          = rbind(t(A.posterior[2:(1+N*p),,s]),cbind(diag(N*(p-1)),matrix(0,N*(p-1),N)))
-  IRF.inf.posterior[,,s]          = J %*% solve(diag(N*p)-A.bold) %*% t(J) %*% B.posterior[,,s]
-  A.bold.power    = A.bold
-  for (i in 1:(h+1)){
-    if (i==1){
-      IRF.posterior[,,i,s]        = B.posterior[,,s]
-    } else {
-      IRF.posterior[,,i,s]        = J %*% A.bold.power %*% t(J) %*% B.posterior[,,s]
-      A.bold.power                = A.bold.power %*% A.bold
-    }
-    for (n in 1:N){
-      for (nn in 1:N){
-        FEVD.posterior[n,nn,i,s]  = sum(IRF.posterior[n,nn,1:i,s]^2)
-      }
-    }
-    FEVD.posterior[,,i,s]         = diag(1/apply(FEVD.posterior[,,i,s],1,sum))%*%FEVD.posterior[,,i,s]
-  }
-}
-FEVD.posterior    = 100*FEVD.posterior
-
-#t1          = proc.time()
-#(t1-t0)[3]/60 # Time of computations in minutes
-
-# save(IRF.posterior,IRF.inf.posterior, FEVD.posterior, file="irf-fevd-k002.RData")
-save(IRF.posterior,IRF.inf.posterior, FEVD.posterior, file="irf-fevd-k1-ext.RData")
-
-
-load("irf-fevd-k1-ext.RData")
-
-# IRF plots GFCF
-############################################################
-shock.var <- 5
-IRFs.k1           = apply(IRF.posterior[1:N,shock.var,,],1:2,mean)
-IRFs.inf.k1       = apply(IRF.inf.posterior[1:N,shock.var,],1,mean)
-rownames(IRFs.k1) = varname_vec
-
-IRFs.k1.hdi    = apply(IRF.posterior[1:N,shock.var,,],1:2,hdi, credMass=0.68)
-hh          = 1:(h+1)
-
-#pdf(file="irf-GFCF.pdf", height=9, width=12)
-par(mfrow=c(3,3), mar=c(2,2,2,2),cex.axis=1.5, cex.lab=1.5)
-for (n in 1:N){
-  ylims     = range(IRFs.k1[n,hh],IRFs.k1.hdi[,n,hh])
-  plot(hh,IRFs.k1[n,hh], type="l", ylim=ylims, axes=FALSE, xlab="3 years",
-       main=rownames(IRFs.k1)[n])
-  abline(h = 0, col = "firebrick")
-  if (n==N-1 | n==N){
-   # axis(1,c(1,2,5,9),c("","1 quarter","1 year","2 years"))
-  } else {
-    #axis(1,c(1,2,5,9),c("","","",""))
-  }
-  axis(2,c(ylims[1],0,ylims[2]),round(c(ylims[1],0,ylims[2]),3))
-  polygon(c(hh,(h+1):1), c(IRFs.k1.hdi[1,n,hh],IRFs.k1.hdi[2,n,(h+1):1]), col=mcxs1.shade1,border=mcxs1.shade1)
-  lines(hh, IRFs.k1[n,hh],lwd=2,col=mcxs1)
-}
-#dev.off()
-
-
-# Plots of FEVD of Australian rgdp and p
-############################################################
-hh            = 1:(h+1)
-fevd.unemp  = apply(FEVD.posterior[1,,,],1:2,mean)
-fevd.unemp  = rbind(rep(0,h+1),apply(fevd.unemp,2,cumsum))
-
-fevd.rgdp     = apply(FEVD.posterior[2,,,],1:2,mean)
-fevd.rgdp     = rbind(rep(0,h+1),apply(fevd.rgdp,2,cumsum))
-
-colors <- brewer.pal(12, name = "Paired")
-
-# colors = c("deepskyblue1","deepskyblue2","deepskyblue","deepskyblue3","deepskyblue4","dodgerblue",
-#            "maroon1","maroon","maroon2","magenta","maroon3","maroon4")
-
-pdf(file="fevd-ext-unemp.pdf", height=7, width=12)
-par(mar=rep(4,4),cex.axis=1, cex.lab=0.8)
-plot(hh,fevd.unemp[1,], type="n", ylim=c(0,100), axes=FALSE, xlab="", ylab="")
-#axis(1,hh,c("","1 quarter","","","1 year","","","","2 years"))
-#axis(2,c(0,50,100),c("","FEVD[unemp]",""))
-for (n in 1:N){
-  polygon(c(hh,(h+1):1), c(fevd.unemp[n,hh],fevd.unemp[n+1,(h+1):1]), col=colors[n],border=colors[n])
-}
-axis(4, (0.5*(fevd.unemp[1:9,9]+fevd.unemp[2:10,9]))[c(3,8,10)], c("","",""))
-dev.off()
-
-
-pdf(file="fevd-ext-rgdp.pdf", height=7, width=12)
-par(mar=rep(4,4),cex.axis=1, cex.lab=0.8)
-plot(hh,fevd.rgdp[1,], type="n", ylim=c(0,100), axes=FALSE, xlab="", ylab="")
-#axis(1,hh,c("","1 quarter","","","1 year","","","","2 years"))
-axis(2,c(0,50,100),c("","FEVD[rgdp]",""))
-for (n in 1:N){
-  polygon(c(hh,(h+1):1), c(fevd.rgdp[n,hh],fevd.rgdp[n+1,(h+1):1]), col=colors[n],border=colors[n])
-}
-axis(4, (0.5*(fevd.rgdp[1:9,9]+fevd.rgdp[2:10,9]))[c(3,10)], c("",""))
-dev.off()
-
-
-
+irf.plot(A.posterior = extended.model$A.posterior, B0.posterior = extended.model$B0, shock.var = 5)
 ```
 
 ## References

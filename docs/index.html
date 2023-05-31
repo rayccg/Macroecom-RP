@@ -175,6 +175,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#identification" id="toc-identification" class="nav-link" data-scroll-target="#identification">Identification</a></li>
   <li><a href="#estimation-with-artificial-data" id="toc-estimation-with-artificial-data" class="nav-link" data-scroll-target="#estimation-with-artificial-data">Estimation with artificial data</a></li>
   </ul></li>
+  <li><a href="#empirical-investigation" id="toc-empirical-investigation" class="nav-link" data-scroll-target="#empirical-investigation">Empirical investigation</a>
+  <ul class="collapse">
+  <li><a href="#basic-model-estimation-and-irfs" id="toc-basic-model-estimation-and-irfs" class="nav-link" data-scroll-target="#basic-model-estimation-and-irfs">Basic model estimation and IRFs</a></li>
+  <li><a href="#extended-model-estimation-and-irfs" id="toc-extended-model-estimation-and-irfs" class="nav-link" data-scroll-target="#extended-model-estimation-and-irfs">Extended model estimation and IRFs</a></li>
+  </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></li>
   </ul>
@@ -419,7 +424,7 @@ U| X &amp;\sim _{iid} MN_{T\times N}( 0, \Sigma, \Omega)\\
 <p>Contemporaneous effects matrix <span class="math inline">\(B\)</span> is identified by searching for an appropriate rotation matrix <span class="math inline">\(Q\)</span> such that prescribed sign restrictions hold:</p>
 <p><span class="math display">\[B = Q\tilde{B}\]</span></p>
 <p>such that:</p>
-<p><span class="math display">\[R_nf(\tilde{B}_0,\tilde{B}_+)e_n\geq0\]</span> <span class="math display">\[f(\tilde{B}_0,\tilde{B}_+)=\Phi_0=\tilde{B}^{-1}_0\]</span></p>
+<p><span class="math display">\[R_nf(\tilde{B}_0,\tilde{B}_+)e_n\geq0\]</span> <span class="math display">\[f(\tilde{B}_0,\tilde{B}_+)=\Theta_0=\tilde{B}^{-1}_0\]</span></p>
 </section>
 <section id="estimation-with-artificial-data" class="level3">
 <h3 class="anchored" data-anchor-id="estimation-with-artificial-data">Estimation with artificial data</h3>
@@ -431,6 +436,8 @@ U| X &amp;\sim _{iid} MN_{T\times N}( 0, \Sigma, \Omega)\\
 </div>
 <p>The estimation procedure for the basic model is implemented in <code>R</code> by the following function, <code>sign.basic</code>:</p>
 <div class="cell">
+<details>
+<summary>Show code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># data = input data should be quarterly</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># p = lags</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># S = number of posterior draws</span></span>
@@ -440,7 +447,7 @@ U| X &amp;\sim _{iid} MN_{T\times N}( 0, \Sigma, \Omega)\\
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># shockvar = variable being shocked</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># start date = start date of Y matrix</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>sign.basic <span class="ot">&lt;-</span> <span class="cf">function</span>(data, p, S,  sign.restrictions,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">k1=</span><span class="fl">0.04</span>, <span class="at">k2=</span><span class="dv">100</span>, <span class="at">start_date =</span> <span class="fu">c</span>(<span class="dv">1991</span>,<span class="dv">1</span>), shockvar){</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">k1=</span><span class="fl">0.04</span>, <span class="at">k2=</span><span class="dv">100</span>, <span class="at">start_date =</span> <span class="fu">c</span>(<span class="dv">1991</span>,<span class="dv">1</span>), <span class="at">shockvar=</span><span class="dv">5</span>){</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define Y and X matrices</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="do">############################################################</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># N = no. of variables</span></span>
@@ -569,6 +576,7 @@ U| X &amp;\sim _{iid} MN_{T\times N}( 0, \Sigma, \Omega)\\
 <span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>             <span class="st">"A.posterior"</span><span class="ot">=</span>A.posterior, <span class="st">"Sigma.posterior"</span><span class="ot">=</span>Sigma.posterior)</span>
 <span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(re)</span>
 <span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <p>Applying the <code>sign.basic</code> function on the artificial returns the following matrices as estimates for the posterior means of <span class="math inline">\(A\)</span> and <span class="math inline">\(\Sigma\)</span>. These results are appropriate given the independent bivariate random walk with drift proceses:</p>
 <div class="cell">
@@ -597,6 +605,8 @@ U| X &amp;\sim _{iid} MN_{T\times N}( 0, \Sigma, \Omega)\\
 <li><code>v.posterior.mode</code> takes in the data and numerically computes for the posterior mode of <span class="math inline">\(\theta\)</span>, i.e., COVID volatility parameters;</li>
 </ol>
 <div class="cell">
+<details>
+<summary>Show code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>v.posterior.mode <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">p=</span><span class="dv">4</span>, <span class="at">k1=</span><span class="dv">1</span>, <span class="at">k2=</span><span class="dv">100</span>, <span class="at">start_date=</span><span class="fu">c</span>(<span class="dv">1991</span>,<span class="dv">1</span>)){</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  v.neglogPost <span class="ot">&lt;-</span> <span class="cf">function</span>(theta){</span>
@@ -676,11 +686,14 @@ U| X &amp;\sim _{iid} MN_{T\times N}( 0, \Sigma, \Omega)\\
 <span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">maximizer=</span>post.maximizer<span class="sc">$</span>par, <span class="at">hessian=</span>post.maximizer<span class="sc">$</span>hessian))</span>
 <span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <ol start="2" type="1">
 <li><code>mh.mcmc</code> takes in data, the posterior mode of <span class="math inline">\(\theta\)</span>, and the inverse Hessian from <code>v.posterior.mode</code> to run the above-mentioned Metropolis MCMC algorithm for a specified number of iterations; and</li>
 </ol>
 <div class="cell">
+<details>
+<summary>Show code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>mh.mcmc <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">p=</span><span class="dv">1</span>, <span class="at">S.mh =</span> <span class="dv">1000</span>, c, <span class="at">W =</span> <span class="fu">diag</span>(<span class="dv">4</span>), theta.init,</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">k1 =</span> <span class="dv">1</span>, <span class="at">k2 =</span> <span class="dv">100</span>, <span class="at">start_date =</span> <span class="fu">c</span>(<span class="dv">1991</span>,<span class="dv">1</span>)){</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a> <span class="co"># N = no. of variables</span></span>
@@ -797,11 +810,14 @@ U| X &amp;\sim _{iid} MN_{T\times N}( 0, \Sigma, \Omega)\\
 <span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>             <span class="at">AcceptRate =</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">rejectionRate</span>(<span class="fu">as.mcmc</span>(Theta[,<span class="dv">1</span>])))</span>
 <span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(re)</span>
 <span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <ol start="3" type="1">
 <li><code>sign.extension</code> takes in data and draws of <span class="math inline">\(\theta\)</span> from <code>mh.mcmc</code> to return the posterior draws for the extended model.</li>
 </ol>
 <div class="cell">
+<details>
+<summary>Show code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sign.extension <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">p=</span><span class="dv">4</span>, <span class="at">S=</span><span class="dv">100</span>,  <span class="at">sign.restrictions =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>),</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">k1=</span><span class="dv">1</span>, <span class="at">k2=</span><span class="dv">100</span>, <span class="at">shockvar =</span> <span class="dv">5</span>, <span class="at">start_date =</span> <span class="fu">c</span>(<span class="dv">1991</span>,<span class="dv">1</span>), Theta.mh){</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -947,6 +963,7 @@ U| X &amp;\sim _{iid} MN_{T\times N}( 0, \Sigma, \Omega)\\
 <span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(re)</span>
 <span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <p>Applying <code>v.posterior.mode</code> on the artifcial data yielded a mode of <span class="math inline">\(\theta^{(s=1)}=(1,1,1,0.8)\)</span> which is appropriate given that there is no COVID volatility in generated random walk series. However, the numerical optimization yielded a non-positive definite Hessian which cannot be used to initialize the Metropolis MCMC. As such, <span class="math inline">\(W\)</span> was instead set to an identity matrix.</p>
 <p>Running <code>mh.mcmc</code> on the artificial data for 15,000 iterations yields the following draws. Unfortunately, the MCMC draws failed to converge into a stationary series within these number of iterations.</p>
@@ -979,6 +996,178 @@ U| X &amp;\sim _{iid} MN_{T\times N}( 0, \Sigma, \Omega)\\
 {"columns":[{"label":["RW1"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["RW2"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"0"},{"1":"0","2":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+</div>
+</div>
+</section>
+</section>
+<section id="empirical-investigation" class="level2">
+<h2 class="anchored" data-anchor-id="empirical-investigation">Empirical investigation</h2>
+<p>This section investigates the effect of an exogenous shock to public investment, represented by the public gross fixed capital formation (GFCF, i.e., the 5th variable in the <span class="math inline">\(Y\)</span>). These will be measured through impulse response functions (IRFs) which capture the dynamic causal effects of an exogenous shock <span class="math inline">\(u_t\)</span> on the variables in the system.</p>
+<p>Given the <span class="math inline">\(VAR(1)\)</span> representation of the model: <span class="math display">\[Y_t = \textbf{A}Y_{t-1} + E_t\]</span> <span class="math display">\[=E_t+\textbf{A}E_{t-1}+\textbf{A}^2E_{t-2}+...\]</span> Transforming back to a <span class="math inline">\(VAR(p)\)</span> representation using the <span class="math inline">\(J\)</span> matrix:</p>
+<p><span class="math display">\[J=\big[I_n\quad 0_{N\times N(p-1)}\big]\]</span></p>
+<p><span class="math display">\[y_t =JY_t=JE_t+J\textbf{A}J'JE_{t-1}+J\textbf{A}^2J'JE_{t-2}+...\]</span> <span class="math display">\[=\varepsilon_t+J\textbf{A}J'\varepsilon_{t-1}+J\textbf{A}^2J'\varepsilon_{t-2}+...\]</span> Substituting <span class="math inline">\(\varepsilon_t=Bu_t\)</span>:</p>
+<p><span class="math display">\[y_t =Bu_t+J\textbf{A}J'Bu_{t-1}+J\textbf{A}^2J'Bu_{t-2}+...\]</span> <span class="math display">\[=\Theta_0u_t+\Theta_1u_{t-1}+\Theta_2u_{t-2}+...\]</span>Where matrix <span class="math inline">\(\frac{\partial y_{t+i}}{\partial u_t}=\Theta_i\)</span> is the IRF which characterizes the effect of the variables <span class="math inline">\(y_t\)</span>, <span class="math inline">\(i\)</span> periods from impact.</p>
+<p>The above derivations are implemented in the function <code>irf.plot</code> below, which takes in draws of <span class="math inline">\(A\)</span> and <span class="math inline">\(B_0\)</span> and does the necessary transformations estimate and plot the impluse response functions for a shock on a specified variable.</p>
+<div class="cell">
+<details>
+<summary>Show code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>irf.plot <span class="ot">&lt;-</span> <span class="cf">function</span>(A.posterior, B0.posterior, shock.var, <span class="at">p=</span><span class="dv">4</span>, <span class="at">h =</span> <span class="dv">12</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">varnames =</span> varname_vec){</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define colors</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="do">############################################################</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  mcxs1  <span class="ot">=</span> <span class="st">"#05386B"</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  mcxs2  <span class="ot">=</span> <span class="st">"#379683"</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  mcxs3  <span class="ot">=</span> <span class="st">"#5CDB95"</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  mcxs4  <span class="ot">=</span> <span class="st">"#8EE4AF"</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  mcxs5  <span class="ot">=</span> <span class="st">"#EDF5E1"</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  purple <span class="ot">=</span> <span class="st">"#b02442"</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  mcxs1.rgb   <span class="ot">=</span> <span class="fu">col2rgb</span>(mcxs1)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  mcxs1.shade1<span class="ot">=</span> <span class="fu">rgb</span>(mcxs1.rgb[<span class="dv">1</span>],mcxs1.rgb[<span class="dv">2</span>],mcxs1.rgb[<span class="dv">3</span>], <span class="at">alpha=</span><span class="dv">120</span>, <span class="at">maxColorValue=</span><span class="dv">255</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  mcxs2.rgb   <span class="ot">=</span> <span class="fu">col2rgb</span>(mcxs2)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  mcxs2.shade1<span class="ot">=</span> <span class="fu">rgb</span>(mcxs2.rgb[<span class="dv">1</span>],mcxs2.rgb[<span class="dv">2</span>],mcxs2.rgb[<span class="dv">3</span>], <span class="at">alpha=</span><span class="dv">120</span>, <span class="at">maxColorValue=</span><span class="dv">255</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Impulse response functions</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="do">############################################################</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">&lt;-</span> <span class="fu">dim</span>(A.posterior)[<span class="dv">2</span>]</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  S <span class="ot">&lt;-</span> <span class="fu">dim</span>(A.posterior)[<span class="dv">3</span>]</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># transform B0 matrices to B</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  B.posterior <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(N,N,S))</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (s <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>S){</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  B.posterior[,,s] <span class="ot">&lt;-</span> <span class="fu">solve</span>(B0.posterior[,,s])</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  IRF.posterior     <span class="ot">=</span> <span class="fu">array</span>(<span class="cn">NA</span>,<span class="fu">c</span>(N,N,h<span class="sc">+</span><span class="dv">1</span>,S))</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  IRF.inf.posterior <span class="ot">=</span> <span class="fu">array</span>(<span class="cn">NA</span>,<span class="fu">c</span>(N,N,S))</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  J                 <span class="ot">=</span> <span class="fu">cbind</span>(<span class="fu">diag</span>(N),<span class="fu">matrix</span>(<span class="dv">0</span>,N,N<span class="sc">*</span>(p<span class="dv">-1</span>)))</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  pb <span class="ot">=</span> <span class="fu">txtProgressBar</span>(<span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> S, <span class="at">initial =</span> <span class="dv">0</span>) </span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (s <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>S){</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setTxtProgressBar</span>(pb,s)</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># define A matrix in VAR(1) representation</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    A.bold          <span class="ot">=</span> <span class="fu">rbind</span>(<span class="fu">t</span>(A.posterior[<span class="dv">2</span><span class="sc">:</span>(<span class="dv">1</span><span class="sc">+</span>N<span class="sc">*</span>p),,s]),<span class="fu">cbind</span>(<span class="fu">diag</span>(N<span class="sc">*</span>(p<span class="dv">-1</span>)),<span class="fu">matrix</span>(<span class="dv">0</span>,N<span class="sc">*</span>(p<span class="dv">-1</span>),N)))</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    IRF.inf.posterior[,,s]          <span class="ot">=</span> J <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">diag</span>(N<span class="sc">*</span>p)<span class="sc">-</span>A.bold) <span class="sc">%*%</span> <span class="fu">t</span>(J) <span class="sc">%*%</span> B.posterior[,,s]</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    A.bold.power    <span class="ot">=</span> A.bold</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(h<span class="sc">+</span><span class="dv">1</span>)){</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (i<span class="sc">==</span><span class="dv">1</span>){</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>        IRF.posterior[,,i,s]        <span class="ot">=</span> B.posterior[,,s]</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>        IRF.posterior[,,i,s]        <span class="ot">=</span> J <span class="sc">%*%</span> A.bold.power <span class="sc">%*%</span> <span class="fu">t</span>(J) <span class="sc">%*%</span> B.posterior[,,s]</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>        A.bold.power                <span class="ot">=</span> A.bold.power <span class="sc">%*%</span> A.bold</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>  <span class="co"># save IRFs</span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">save</span>(IRF.posterior,IRF.inf.posterior, <span class="at">file=</span><span class="st">"irf-k1.RData"</span>)</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  <span class="co"># IRF plots GFCF</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  <span class="do">############################################################</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>  IRFs.k1           <span class="ot">=</span> <span class="fu">apply</span>(IRF.posterior[,shock.var,,],<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>,mean)</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>  IRFs.inf.k1       <span class="ot">=</span> <span class="fu">apply</span>(IRF.inf.posterior[,shock.var,],<span class="dv">1</span>,mean)</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames</span>(IRFs.k1) <span class="ot">=</span> varnames</span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>  IRFs.k1.hdi    <span class="ot">=</span> <span class="fu">apply</span>(IRF.posterior[,shock.var,,],<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>,hdi, <span class="at">credMass=</span><span class="fl">0.68</span>)</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>  hh          <span class="ot">=</span> <span class="dv">1</span><span class="sc">:</span>(h<span class="sc">+</span><span class="dv">1</span>)</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">3</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">2</span>),<span class="at">cex.axis=</span><span class="fl">1.5</span>, <span class="at">cex.lab=</span><span class="fl">1.5</span>)</span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (n <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N){</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>    ylims     <span class="ot">=</span> <span class="fu">range</span>(IRFs.k1[n,hh],IRFs.k1.hdi[,n,hh])</span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot</span>(hh,IRFs.k1[n,hh], <span class="at">type=</span><span class="st">"l"</span>, <span class="at">ylim=</span>ylims, <span class="at">axes=</span><span class="cn">FALSE</span>, <span class="at">xlab=</span><span class="st">"3 years"</span>,</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>         <span class="at">main=</span><span class="fu">rownames</span>(IRFs.k1)[n])</span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">"firebrick"</span>)</span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>    <span class="fu">axis</span>(<span class="dv">2</span>,<span class="fu">c</span>(ylims[<span class="dv">1</span>],<span class="dv">0</span>,ylims[<span class="dv">2</span>]),<span class="fu">round</span>(<span class="fu">c</span>(ylims[<span class="dv">1</span>],<span class="dv">0</span>,ylims[<span class="dv">2</span>]),<span class="dv">3</span>))</span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>    <span class="fu">polygon</span>(<span class="fu">c</span>(hh,(h<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span><span class="dv">1</span>), <span class="fu">c</span>(IRFs.k1.hdi[<span class="dv">1</span>,n,hh],IRFs.k1.hdi[<span class="dv">2</span>,n,(h<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span><span class="dv">1</span>]),</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>            <span class="at">col=</span>mcxs1.shade1,<span class="at">border=</span>mcxs1.shade1)</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lines</span>(hh, IRFs.k1[n,hh],<span class="at">lwd=</span><span class="dv">2</span>,<span class="at">col=</span>mcxs1)</span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="basic-model-estimation-and-irfs" class="level3">
+<h3 class="anchored" data-anchor-id="basic-model-estimation-and-irfs">Basic model estimation and IRFs</h3>
+<p>The basic model is used to investigate the dynamic effects of shock to public investment on the economic system. Identification proceeds via the following sign restrictions on <span class="math inline">\(\Theta_0\)</span>:</p>
+<p><span class="math display">\[f(B_0,B_+)=\Theta_0=B=\begin{bmatrix}
+* &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; *\\
+* &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; *\\
++ &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; *\\
++ &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; *\\
++ &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; *\\
++ &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; *\\
++ &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; *\\
+- &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; *\\
++ &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; * &amp; *\\
+\end{bmatrix}\]</span></p>
+<p>which corresponds to the following <span class="math inline">\(\textbf{R}_5\)</span> matrix: <span class="math display">\[\textbf{R}_5=\begin{bmatrix}
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; -1 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1\\
+\end{bmatrix}\]</span></p>
+<p><span class="math display">\[\textbf{R}_5f(B_0,B_+)e_5\geq0\]</span></p>
+<p>Where the identifying fiscal policy impulse vector is: <span class="math display">\[\text{diag}(\textbf{R}_5)=[0\quad0\quad1\quad1\quad1\quad1\quad1\quad-1\quad1]\]</span> <span class="math inline">\(\text{diag}(\textbf{R}_5)\)</span> represents an exogenous shock to public investment to which other fiscal variables respond positively and are accommodated by monetary policy. This scenario is applicable, for example during situations where the Australian economy is experiencing low inflation but sluggish growth which the government may want to stimulate in the short-to-medium term. Variables for unemployment and output, the first and second variables in <span class="math inline">\(y_t\)</span>, respectively, are left unrestricted as these are the variables whose responses are of interest.</p>
+<div class="cell">
+<details>
+<summary>Show code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">## interpretations ignoring recommendations of pagan and fry 2005. Not in terms of probability. 68% of IRF at a horizon are w/in the band. fraction of orthinognal IRFs. not stat significance. where are most of the orthogonal IRFs are. </span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#expansionary fiscal policy, accommodated by monetary policy</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>basic.model <span class="ot">&lt;-</span> <span class="fu">sign.basic</span>(lnY.df_num,<span class="at">p=</span><span class="dv">4</span>, <span class="at">S=</span><span class="dv">10000</span>, <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">k1 =</span> <span class="dv">1</span>, <span class="at">shockvar=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>================================================================================</code></pre>
+</div>
+<details>
+<summary>Show code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">irf.plot</span>(<span class="at">A.posterior =</span> basic.model<span class="sc">$</span>A.posterior, <span class="at">B0.posterior =</span> basic.model<span class="sc">$</span>B0, <span class="at">shock.var =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>================================================================================</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/Basic model estimation-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>As seen in the above plots, an exogenous shock to public investment (i.e., government GFCF) at period <span class="math inline">\(h=0\)</span> is estimated to increase real GDP in subsequent periods, with the majority of estimated real GDP impulse responses at <span class="math inline">\(h&gt;0\)</span> above the zero level. This expansion in output is accompanied by a decrease in unemployment. These results are consistent with the Keynesian economic theory that expansionary fiscal policy (through increased spending) increases output and employment. Note that these improvements to GDP and unemployment occur despite increases in tax revenue.</p>
+</section>
+<section id="extended-model-estimation-and-irfs" class="level3">
+<h3 class="anchored" data-anchor-id="extended-model-estimation-and-irfs">Extended model estimation and IRFs</h3>
+<p>The same sign restrictions are used for identification in the extended model. Functions <code>v.posterior</code> and <code>mh.mcmc</code> are implemented to draw the COVID volatility vector <span class="math inline">\(H\)</span> based on the macroeconomic data. As seen in the plots below, the Metropolis MCMC also failed to converge to stationarity after 20,000 draws.</p>
+<div class="cell">
+<details>
+<summary>Show code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>extension.post.mode <span class="ot">&lt;-</span> <span class="fu">v.posterior.mode</span>(lnY.df_num, <span class="at">p =</span> <span class="dv">4</span>, <span class="at">k1 =</span> <span class="dv">1</span>, <span class="at">k2 =</span> <span class="dv">100</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>extension.mcmc <span class="ot">&lt;-</span><span class="fu">mh.mcmc</span>(lnY.df_num, <span class="at">p=</span><span class="dv">4</span>, <span class="at">c=</span><span class="fl">0.000228</span>, <span class="at">W =</span> <span class="fu">solve</span>(extension.post.mode<span class="sc">$</span>hessian), </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">theta.init =</span> extension.post.mode<span class="sc">$</span>maximizer, <span class="at">k1 =</span> <span class="dv">1</span>, <span class="at">S.mh =</span> <span class="dv">20000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>================================================================================</code></pre>
+</div>
+<details>
+<summary>Show code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.ts</span>(extension.mcmc<span class="sc">$</span>Theta, <span class="at">main =</span> <span class="st">"Metropolis MCMC draws"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/Extended model MCMC-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The resulting IRF plots from the extended model mimic the basic model results where an exogenous shock to GFCF results in higher output and lower unemployment rates. However, the bands surrounding the mean line of the IRFs have become slightly tighter, as accounting for COVID-induced conditional heteroskedasticity effectively down-weights the heightened volatility of observations during the pandemic.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>================================================================================================================================================================</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>================================================================================</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/Extended model plots-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
