@@ -384,7 +384,7 @@ Steps 2 to 4 are repeated $S_1+S_2$ times and $S_2$ draws are used to draw $A$ a
 
 $$P(A|Y,X,\Sigma,H)=MN_{K\times N}(\bar{A},\Sigma,\bar{V})$$ $$P(\Sigma|Y,X,H)=IW_N(\bar{S},\bar{\nu})\\$$
 
-$$\bar{V}=(X'\text{diag}(H^2)X+\underline{V}^{-1})^{-1}$$ $$\bar{A}=\bar{V}(X'\text{diag}(H^2)Y+\underline{V}^{-1}\underline{A})^{-1}$$ $$\bar{\nu}=T+\underline{\nu}$$ $$\bar{S}=\underline{S}+Y'\text{diag}(H^2)Y+\underline{A}'\underline{V}^{-1}\underline{A}-
+$$\bar{V}=(X'\text{diag}(H^2)X+\underline{V}^{-1})^{-1}$$ $$\bar{A}=\bar{V}(X'\text{diag}(H^2)Y+\underline{V}^{-1}\underline{A})$$ $$\bar{\nu}=T+\underline{\nu}$$ $$\bar{S}=\underline{S}+Y'\text{diag}(H^2)Y+\underline{A}'\underline{V}^{-1}\underline{A}-
 \bar{A}'\bar{V}^{-1}\bar{A}$$
 
 ### Identification
@@ -946,7 +946,7 @@ sign.extension <- function(data, p=4, S=100,  sign.restrictions = c(0, 0, 1, 1, 
 
 Applying `v.posterior.mode` on the artifcial data yielded a mode of $\theta^{(s=1)}=(1,1,1,0.8)$ which is appropriate given that there is no COVID volatility in generated random walk series. However, the numerical optimization yielded a non-positive definite Hessian which cannot be used to initialize the Metropolis MCMC. As such, $W$ was instead set to an identity matrix.
 
-Running `mh.mcmc` on the artificial data for 15000 iterations yields the following draws. Unfortunately, the MCMC draws failed to converge into a stationary series within these number of iterations.
+Running `mh.mcmc` on the artificial data for 15,000 iterations yields the following draws. Unfortunately, the MCMC draws failed to converge into a stationary series within these number of iterations.
 
 ```{r RW Metropolis MCMC}
 set.seed(1)
