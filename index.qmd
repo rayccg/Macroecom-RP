@@ -320,7 +320,7 @@ where the maximum likelihood estimators are expressed as:
 
 $$\hat{A} = (X'X)^{-1}X'Y $$ $$\hat{\Sigma} = \frac{1}{T} (Y-X \hat{A})'(Y-X \hat{A})$$
 
-The prior for $A$ and $\Sigma$ is assumed to be a matrix-normal inverse Wishart distribution that follows the Minnesota specification of Doan, Litterman & Sims (1984):
+The prior for $A$ and $\Sigma$ is assumed to be a matrix-normal inverse Wishart distribution that follows the Minnesota specification of @doan1984forecasting:
 
 $$p(A,\Sigma) =MNIW(\underline{A},\underline{S},\underline{V},\underline{\nu})$$
 
