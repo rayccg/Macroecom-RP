@@ -18,7 +18,7 @@ In many countries, fiscal policy is viewed as a direct means of achieving inclus
 
 This study attempts to identify the effect of the following fiscal policy instrument: tax policy, public investment expenditures, and social transfers, on both unemployment and output in the Australian context, using a Bayesian Structural Vector Autoregression (BSVAR) approach.
 
-The analysis is guided by the work of Abubakar, Attahir B. (2016), which used an SVAR approach to estimate the effect of public expenditures and public revenues on Nigerian output and unemployment and Lenza & Primiceri (2020) which proposes an estimation procedure for VARs after the COVID-19 pandemic. This study extends their work by using a more extensive dataset, containing more disaggregated revenue and expenditure variables, the inclusion of monetary policy control variables, and applying the COVID volatility model into a structural analysis.
+The analysis is guided by the work of Abubakar, Attahir B. (2016), which used an SVAR approach to estimate the effect of public expenditures and public revenues on Nigerian output and unemployment and @lenza2022estimate which proposes an estimation procedure for VARs after the COVID-19 pandemic. This study extends their work by using a more extensive dataset, containing more disaggregated revenue and expenditure variables, the inclusion of monetary policy control variables, and applying the COVID volatility model into a structural analysis.
 
 ## Data sources
 
@@ -345,7 +345,7 @@ $$H=[1\quad...\quad1 \quad h_0\quad h_1\quad h_2\quad 1+(h_2-1)\rho\quad 1+(h_2-
 
 Intuitively, volatility variables for periods before COVID are set to unity. Heightened volatility during the first three quarters of COVID are parameterized, before they are assumed to decay gradually beginning at the fourth quarter since the pandemic's onset.
 
-These COVID volatility parameters $\theta=(h_0\quad h_1\quad h_2\quad\rho)$ are estimated from their own marginal posterior as proposed by Lenza & Primiceri (2020):
+These COVID volatility parameters $\theta=(h_0\quad h_1\quad h_2\quad\rho)$ are estimated from their own marginal posterior as proposed by @lenza2022estimate:
 
 $$P(\theta|Y,X,\underline{\gamma})\propto P(Y,X|\theta,\underline{\gamma})P(\theta|\underline{\gamma})$$
 
@@ -1111,9 +1111,7 @@ which corresponds to the following $\textbf{R}_5$ matrix: $$\textbf{R}_5=\begin{
 
 $$\textbf{R}_5f(B_0,B_+)e_5\geq0$$
 
-Where the identifying fiscal policy impulse vector is:
-$$\text{diag}(\textbf{R}_5)=[0\quad0\quad1\quad1\quad1\quad1\quad1\quad-1\quad1]$$
-$\text{diag}(\textbf{R}_5)$ represents an exogenous shock to public investment to which other fiscal variables respond positively and are accommodated by monetary policy. This scenario is applicable, for example during situations where the Australian economy is experiencing low inflation but sluggish growth which the government may want to stimulate in the short-to-medium term. Variables for unemployment and output, the first and second variables in $y_t$, respectively, are left unrestricted as these are the variables whose responses are of interest.
+Where the identifying fiscal policy impulse vector is: $$\text{diag}(\textbf{R}_5)=[0\quad0\quad1\quad1\quad1\quad1\quad1\quad-1\quad1]$$ $\text{diag}(\textbf{R}_5)$ represents an exogenous shock to public investment to which other fiscal variables respond positively and are accommodated by monetary policy. This scenario is applicable, for example during situations where the Australian economy is experiencing low inflation but sluggish growth which the government may want to stimulate in the short-to-medium term. Variables for unemployment and output, the first and second variables in $y_t$, respectively, are left unrestricted as these are the variables whose responses are of interest.
 
 ```{r Basic model estimation, echo = TRUE}
 #| code-fold: true
