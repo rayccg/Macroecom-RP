@@ -979,10 +979,10 @@ RW_estimation_ext <-  sign.extension(y, p = 1, S = 2000,
                                      sign.restrictions=c(0, 0), k1 = 1, 
                                      Theta.mh = RW.mcmc$Theta[13001:15000,], shockvar = 1)
 
-A.mean_tab <- as.data.frame(round(RW_estimation_ext$A.mean,0))
+A.mean_tab <- as.data.frame(round(RW_estimation_ext$A.mean,3))
 colnames(A.mean_tab) <- c("RW1", "RW2")
 
-Sigma.mean_tab <- as.data.frame(round(apply(RW_estimation_ext$Sigma.posterior,1:2,mean),0))
+Sigma.mean_tab <- as.data.frame(round(apply(RW_estimation_ext$Sigma.posterior,1:2,mean),3))
 colnames(Sigma.mean_tab) <- c("RW1", "RW2")
 
 paged_table(A.mean_tab)
