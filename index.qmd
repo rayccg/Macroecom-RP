@@ -65,7 +65,7 @@ library(HDInterval)
 library(RColorBrewer)
 library(mgcv)
 
-S.global = 10000
+S.global = 5000
 ```
 
 ```{r data download, include = F}
@@ -996,7 +996,6 @@ plot.ts(RW.mcmc$Theta, main = "Metropolis MCMC draws", xlab = "")
 
 Nonetheless, using these draws in the estimation procedure implemented by `sign.extension` still yields correct estimates for $A$ and $\Sigma$, as seen in the results below. Note however, memory capacity of the computer used only allowed for 2000 draws for the extended model.
 
-(Note: 10,000 draws is possible for estimation using the actual macroeconomic data given the much fewer observations)
 
 ```{r RW extension, echo = F}
 #| code-fold: true
@@ -1017,7 +1016,7 @@ paged_table(Sigma.mean_tab)
 
 Estimation of the common stochastic volatility model is conducted using the `sign.stochvol` function below:
 
-```{r, SV function}
+```{r SV function, echo = TRUE}
 #| code-fold: true
 #| code-summary: "Show code"
 sign.stochvol <- function(data, p, S,  sign.restrictions,
@@ -1276,12 +1275,12 @@ sign.stochvol <- function(data, p, S,  sign.restrictions,
 }
 ```
 
-Applying the `sign.stochvol` on the random walk with drift data for $S=10,000$ draws yields an appropriate identity matrix estimate for $A$. However, the product of the average $\sigma^2$ and $\Sigma$ estimates do not yield an identity matrix. This may be due to poor estimation of $\sigma^2$ as the artificial data does not provide any real signals (i.e., there is no actual conditional heteroskedasticity).
+Applying the `sign.stochvol` on the random walk with drift data yields an appropriate identity matrix estimate for $A$. However, the product of the average $\sigma^2$ and $\Sigma$ estimates do not yield an identity matrix. This may be due to poor estimation of $\sigma^2$ as the artificial data does not provide any real signals (i.e., there is no actual conditional heteroskedasticity).
 
 ```{r RW SV}
 #| code-fold: true
 #| code-summary: "Show code"
-RW_SV <- sign.stochvol(data=y, p=1, S=S.global, c(0,1), k1 = 1, k2 = 100, shockvar = 1)
+RW_SV <- sign.stochvol(data=y, p=1, S=2000, c(0,1), k1 = 1, k2 = 100, shockvar = 1)
 
 A.mean_tab <- as.data.frame(round(apply(RW_SV$A.posterior,1:2,mean),3))
 colnames(A.mean_tab) <- c("RW1", "RW2")
@@ -1444,17 +1443,17 @@ plot.ts(extension.mcmc$Theta, main = "Metropolis MCMC draws", xlab = "")
 
 The resulting IRF plots from the extended model mimic the basic model results where an exogenous shock to GFCF results in higher output and lower unemployment rates. However, the bands surrounding the mean line of the IRFs have become slightly tighter, as accounting for COVID-induced conditional heteroskedasticity effectively down-weights the heightened volatility of observations during the pandemic.
 
-```{r Extended model plots, echo = T}
+```{r Extended model plots, echo = TRUE}
 #| code-fold: true
 #| code-summary: "Show code"
-extended.model <- sign.extension(lnY.df_num, p = 4, S = S.global, sign.restrictions=c(0, 0, 1, 1, 1, 1, 1, 0, 0), k1 = 1, 
+extended.model <- sign.extension(lnY.df_num, p = 4, S = S.global, sign.restrictions=c(0, 0, 1, 1, 1, 1, 1, -1, 1), k1 = 1, 
                                  Theta.mh = extension.mcmc$Theta[(S.global+1):(2*S.global),])
 
 irf.plot(A.posterior = extended.model$A.posterior, B0.posterior = extended.model$B0, shock.var = 5)
 ```
 
 Moreover, estimates suggest that conditional volatility peaked during Q2 2020, sharply declined in the subsequent quarter and linearly decaying thereafter. These results do not seem to be realistic.
-```{r COVID volatility plots, echo = T}
+```{r COVID volatility plots, echo = TRUE}
 #| code-fold: true
 #| code-summary: "Show code"
 mcxs1  = "#05386B"
@@ -1500,8 +1499,8 @@ polygon(c(x.date[1:12],x.date[12:1]),
 
 ### Common stochastic volatility model estimation and IRFs
 
-Lastly, the common SV model was ran on the macroeconomic data and yields the following IRFs. By and large, the general location of the mean lines are similar to the basic and COVID-volatility model, though the estimated effect of fiscal policy on output has become negative to near zero. We also note that surrounding bands around the mean have become much narrower in this model. 
-```{r, echo = T}
+Lastly, the common SV model was ran on the macroeconomic data and yields the following IRFs. By and large, the general location of the mean lines are similar to the basic and COVID-volatility model, though the estimated effect of fiscal policy on output has become negative to near zero. We also note that surrounding bands around the mean have become much narrower in this model, driven by the much smaller variance of the parameters (see Appendix). 
+```{r SV IRF, echo = TRUE}
 #| code-fold: true
 #| code-summary: "Show code"
 
@@ -1512,7 +1511,7 @@ irf.plot(A.posterior = SV$A.posterior[,,(S.global+1):(2*S.global)], B0.posterior
 ```
 
 Moreover, the $\sigma$ estimates provide a more realistic picture of the conditional volatility across the time series. As seen in the plot below, the common SV model not only captures the heightened volatility during COVID, but also the spikes in uncertainty during the Asian financial crisis and the global financial crisis.
-```{r, echo = T}
+```{r SV plot, echo = T}
 #| code-fold: true
 #| code-summary: "Show code"
 
@@ -1545,7 +1544,7 @@ We note that identification via sign restrictions was not able to successfully i
 ## Appendix: Sample histograms of selected parameters
 
 ```{r Appendix basic, echo = F}
-breaks.a = 200
+breaks.a = 100
 
 par(mfrow=c(1,3))
 hist(basic.model$A.posterior[3,5,],
